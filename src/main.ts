@@ -16,6 +16,7 @@ async function run(): Promise<void> {
       packageFiles
     )
 
+    core.debug(JSON.stringify({newDependencies, updatedDependencies}, null, 2))
     // manage the publication of a message listing the new dependencies if needed
     await manageMessage(newDependencies, updatedDependencies)
   } catch (error) {
