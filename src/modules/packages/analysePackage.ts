@@ -14,13 +14,13 @@ async function analysePackage(file: string): Promise<DependenciesList> {
     : []
 
   // fetches information about the updated package file
-  const updatedPackage = await getLocalPackageInfo(file)
-  const updatedDeps = Object.keys(updatedPackage.dependencies)
-  const updatedDevDeps = Object.keys(updatedPackage.devDependencies)
+  const addedPackage = await getLocalPackageInfo(file)
+  const addedDeps = Object.keys(addedPackage.dependencies)
+  const addedDevDeps = Object.keys(addedPackage.devDependencies)
 
   // filters new dependencies not existing in the base branch
-  const newDeps = updatedDeps.filter(dep => !baseDeps.includes(dep))
-  const newDevDeps = updatedDevDeps.filter(dep => !baseDevDeps.includes(dep))
+  const newDeps = addedDeps.filter(dep => !baseDeps.includes(dep))
+  const newDevDeps = addedDevDeps.filter(dep => !baseDevDeps.includes(dep))
 
   return {
     dependencies: newDeps,

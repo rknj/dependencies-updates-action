@@ -6,12 +6,15 @@ import {DependenciesList} from '../../types/package'
 import {messageInfo} from './messageInfo'
 
 async function draftMessage(
-  newDependencies: DependenciesList
+  newDependencies: DependenciesList,
+  updatedDependencies: DependenciesList
 ): Promise<string> {
   // list all dependencies to render
   const listDependencies = [
     ...newDependencies.dependencies,
-    ...newDependencies.devDependencies
+    ...newDependencies.devDependencies,
+    ...updatedDependencies.dependencies,
+    ...updatedDependencies.devDependencies
   ]
 
   // // fetch information for all dependencies to render
@@ -34,10 +37,26 @@ ${newDependencies.dependencies.map(dep => messageInfo(info[dep])).join(`\n`)}
 ${newDependencies.devDependencies.map(dep => messageInfo(info[dep])).join(`\n`)}
 `
 
+  const updatedDependenciesMessage = `
+## Dependencies updated
+${updatedDependencies.dependencies
+  .map(dep => messageInfo(info[dep]))
+  .join(`\n`)}
+`
+
+  const updatedDevDependenciesMessage = `
+## Development dependencies updated
+${updatedDependencies.devDependencies
+  .map(dep => messageInfo(info[dep]))
+  .join(`\n`)}
+`
+
   return compact([
     COMMENT_IDENTIFIER,
     newDependencies.dependencies.length && dependenciesMessage,
-    newDependencies.devDependencies.length && devDependenciesMessage
+    newDependencies.devDependencies.length && devDependenciesMessage,
+    updatedDependencies.dependencies.length && updatedDependenciesMessage,
+    updatedDependencies.devDependencies.length && updatedDevDependenciesMessage
   ]).join(`\n`)
 }
 

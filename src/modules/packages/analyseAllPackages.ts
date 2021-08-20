@@ -7,7 +7,12 @@ import analysePackage from './analysePackage'
  *
  * @param files List of packages to analyse with the base branch
  */
-async function analyseAllPackages(files: string[]): Promise<DependenciesList> {
+async function analyseAllPackages(
+  files: string[]
+): Promise<{
+  newDependencies: DependenciesList
+  updatedDependencies: DependenciesList
+}> {
   const dependencies: DependenciesList = {
     dependencies: [],
     devDependencies: []
@@ -27,7 +32,13 @@ async function analyseAllPackages(files: string[]): Promise<DependenciesList> {
     ]
   }
 
-  return dependencies
+  return {
+    newDependencies: dependencies,
+    updatedDependencies: {
+      dependencies: ['@actions/core'],
+      devDependencies: []
+    }
+  }
 }
 
 export default analyseAllPackages

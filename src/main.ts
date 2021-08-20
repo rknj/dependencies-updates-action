@@ -12,10 +12,12 @@ async function run(): Promise<void> {
     if (!packageFiles.length) return manageMessage()
 
     // fetch list of new dependencies for all detected packages
-    const newDependencies = await analyseAllPackages(packageFiles)
+    const {newDependencies, updatedDependencies} = await analyseAllPackages(
+      packageFiles
+    )
 
     // manage the publication of a message listing the new dependencies if needed
-    await manageMessage(newDependencies)
+    await manageMessage(newDependencies, updatedDependencies)
   } catch (error) {
     core.setFailed(error.message)
   }
