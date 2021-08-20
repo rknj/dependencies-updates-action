@@ -3,6 +3,7 @@ import {compact} from 'lodash/fp'
 import packageJson, {FullMetadata} from 'package-json'
 import {COMMENT_IDENTIFIER} from '../../config/comment'
 import {DependenciesList} from '../../types/package'
+import {messageInfo} from './messageInfo'
 
 async function draftMessage(
   newDependencies: DependenciesList
@@ -23,63 +24,14 @@ async function draftMessage(
     }
   }
 
-  const messageInfo = (dep: string): string =>
-    `
-### ${
-      info[dep].homepage
-        ? `[${info[dep].name}](${info[dep].homepage})`
-        : info[dep].name
-    }\n
-
-<table>
-  ${
-    info[dep].description
-      ? `<tr><td>Description</td><td>${info[dep].description}</td></tr>`
-      : ``
-  }
-  ${
-    info[dep].author?.name
-      ? `<tr><td>Author</td><td>${info[dep].author?.name}</td></tr>`
-      : ``
-  }
-  ${
-    info[dep].license
-      ? `<tr><td>License</td><td>${info[dep].license}</td></tr>`
-      : ``
-  }
-  ${
-    info[dep].contributors
-      ? `<tr><td>Contributors</td><td>${info[dep].contributors
-          ?.map(contributor => contributor.name)
-          .join(', ')}</td></tr>`
-      : ``
-  }
-  ${
-    info[dep].time?.created
-      ? `<tr><td>Created on</td><td>${info[dep].time.created}</td></tr>`
-      : ``
-  }
-  ${
-    info[dep].time?.modified
-      ? `<tr><td>Last modified</td><td>${info[dep].time.modified}</td></tr>`
-      : ``
-  }
-</table>
-${
-  info[dep].readme
-    ? `<details><summary>README.md</summary>${info[dep].readme}</details> `
-    : ``
-}
-    `
-
   const dependenciesMessage = `
 ## Dependencies added
-${newDependencies.dependencies.map(messageInfo).join(`\n`)}
+${newDependencies.dependencies.map(dep => messageInfo(info[dep])).join(`\n`)}
 `
 
   const devDependenciesMessage = `
 ## Development dependencies added
-${newDependencies.devDependencies.map(messageInfo).join(`\n`)}
+${newDependencies.devDependencies.map(dep => messageInfo(info[dep])).join(`\n`)}
 `
 
   return compact([
