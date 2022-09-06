@@ -19,6 +19,8 @@ async function analysePackage(
     ? Object.keys(basePackage.devDependencies)
     : []
 
+  core.debug(JSON.stringify({baseDeps, baseDevDeps}, null, 2))
+
   // fetches information about the updated package file
   const updatedPackage = await getLocalPackageInfo(file)
   const updatedDeps = Object.keys(updatedPackage.dependencies)

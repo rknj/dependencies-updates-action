@@ -8086,6 +8086,7 @@ function analysePackage(file) {
         const baseDevDeps = basePackage
             ? Object.keys(basePackage.devDependencies)
             : [];
+        core.debug(JSON.stringify({ baseDeps, baseDevDeps }, null, 2));
         // fetches information about the updated package file
         const updatedPackage = yield getLocalPackageInfo_1.default(file);
         const updatedDeps = Object.keys(updatedPackage.dependencies);
