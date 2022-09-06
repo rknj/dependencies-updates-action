@@ -18,7 +18,7 @@ async function draftMessage(
     ...updatedDependencies.devDependencies
   ]
 
-  core.debug(JSON.stringify({newDependencies, updatedDependencies}, null, 2))
+  core.debug(JSON.stringify({listDependencies}, null, 2))
 
   // // fetch information for all dependencies to render
   const info: Record<string, FullMetadata> = {}
@@ -30,15 +30,19 @@ async function draftMessage(
     }
   }
 
+  core.debug(JSON.stringify({info}, null, 2))
+
   const dependenciesMessage = `
 ## Dependencies added
 ${newDependencies.dependencies.map(dep => messageInfo(info[dep])).join(`\n`)}
 `
+  core.debug(JSON.stringify({dependenciesMessage}, null, 2))
 
   const devDependenciesMessage = `
 ## Development dependencies added
 ${newDependencies.devDependencies.map(dep => messageInfo(info[dep])).join(`\n`)}
 `
+  core.debug(JSON.stringify({devDependenciesMessage}, null, 2))
 
   const updatedDependenciesMessage = `
 ## Dependencies updated
@@ -46,6 +50,7 @@ ${updatedDependencies.dependencies
   .map(dep => messageInfo(info[dep]))
   .join(`\n`)}
 `
+  core.debug(JSON.stringify({updatedDependenciesMessage}, null, 2))
 
   const updatedDevDependenciesMessage = `
 ## Development dependencies updated
@@ -53,6 +58,7 @@ ${updatedDependencies.devDependencies
   .map(dep => messageInfo(info[dep]))
   .join(`\n`)}
 `
+  core.debug(JSON.stringify({updatedDevDependenciesMessage}, null, 2))
 
   return compact([
     COMMENT_IDENTIFIER,
