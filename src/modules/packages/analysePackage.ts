@@ -1,6 +1,7 @@
 import GitHubClient from '../../services/github-sdk'
 import getLocalPackageInfo from './getLocalPackageInfo'
 import {DependenciesList} from '../../types/package'
+import * as core from '@actions/core'
 
 async function analysePackage(
   file: string
@@ -48,6 +49,7 @@ async function analysePackage(
     devDependencies: upgradedDevDeps
   }
 
+  core.debug(JSON.stringify({newDependencies, updatedDependencies}, null, 2))
   return {
     newDependencies,
     updatedDependencies
