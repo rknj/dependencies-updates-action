@@ -4358,15 +4358,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const github_sdk_1 = __importDefault(__webpack_require__(908));
 const draftMessage_1 = __importDefault(__webpack_require__(382));
+const core = __importStar(__webpack_require__(470));
 function manageMessage(newDependencies, updatedDependencies) {
     return __awaiter(this, void 0, void 0, function* () {
         const ghClient = github_sdk_1.default.getClient();
         const actionMessageId = yield ghClient.fetchMessage();
         const hasNewDependencies = (newDependencies === null || newDependencies === void 0 ? void 0 : newDependencies.dependencies.length) || (newDependencies === null || newDependencies === void 0 ? void 0 : newDependencies.devDependencies.length);
         const hasUpdatedDependencies = (updatedDependencies === null || updatedDependencies === void 0 ? void 0 : updatedDependencies.dependencies.length) || (updatedDependencies === null || updatedDependencies === void 0 ? void 0 : updatedDependencies.devDependencies.length);
+        core.debug(JSON.stringify({ actionMessageId, hasNewDependencies, hasUpdatedDependencies }, null, 2));
         // early-termination if there is no new dependencies and no existing message
         if (!actionMessageId && !hasNewDependencies && !hasUpdatedDependencies)
             return;

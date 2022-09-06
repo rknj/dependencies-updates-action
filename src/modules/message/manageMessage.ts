@@ -1,6 +1,7 @@
 import {DependenciesList} from '../../types/package'
 import GitHubClient from '../../services/github-sdk'
 import draftMessage from './draftMessage'
+import * as core from '@actions/core'
 
 async function manageMessage(
   newDependencies?: DependenciesList,
@@ -14,6 +15,14 @@ async function manageMessage(
   const hasUpdatedDependencies =
     updatedDependencies?.dependencies.length ||
     updatedDependencies?.devDependencies.length
+
+  core.debug(
+    JSON.stringify(
+      {actionMessageId, hasNewDependencies, hasUpdatedDependencies},
+      null,
+      2
+    )
+  )
 
   // early-termination if there is no new dependencies and no existing message
   if (!actionMessageId && !hasNewDependencies && !hasUpdatedDependencies) return
