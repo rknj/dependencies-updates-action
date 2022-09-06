@@ -4,6 +4,7 @@ import packageJson, {FullMetadata} from 'package-json'
 import {COMMENT_IDENTIFIER} from '../../config/comment'
 import {DependenciesList} from '../../types/package'
 import {messageInfo} from './messageInfo'
+import * as core from '@actions/core'
 
 async function draftMessage(
   newDependencies: DependenciesList,
@@ -16,6 +17,8 @@ async function draftMessage(
     ...updatedDependencies.dependencies,
     ...updatedDependencies.devDependencies
   ]
+
+  core.debug(JSON.stringify({newDependencies, updatedDependencies}, null, 2))
 
   // // fetch information for all dependencies to render
   const info: Record<string, FullMetadata> = {}

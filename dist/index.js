@@ -7998,12 +7998,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = __webpack_require__(470);
 const fp_1 = __webpack_require__(377);
 const package_json_1 = __importDefault(__webpack_require__(289));
 const comment_1 = __webpack_require__(374);
 const messageInfo_1 = __webpack_require__(451);
+const core = __importStar(__webpack_require__(470));
 function draftMessage(newDependencies, updatedDependencies) {
     return __awaiter(this, void 0, void 0, function* () {
         // list all dependencies to render
@@ -8013,6 +8021,7 @@ function draftMessage(newDependencies, updatedDependencies) {
             ...updatedDependencies.dependencies,
             ...updatedDependencies.devDependencies
         ];
+        core.debug(JSON.stringify({ newDependencies, updatedDependencies }, null, 2));
         // // fetch information for all dependencies to render
         const info = {};
         for (const dependency of listDependencies) {
