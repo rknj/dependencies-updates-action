@@ -24,9 +24,13 @@ async function analysePackage(
   const updatedDeps = Object.keys(updatedPackage.dependencies)
   const updatedDevDeps = Object.keys(updatedPackage.devDependencies)
 
+  core.debug(JSON.stringify({updatedDeps, updatedDevDeps}, null, 2))
+
   // filters new dependencies not existing in the base branch
   const newDeps = updatedDeps.filter(dep => !baseDeps.includes(dep))
   const newDevDeps = updatedDevDeps.filter(dep => !baseDevDeps.includes(dep))
+
+  core.debug(JSON.stringify({newDeps, newDevDeps}, null, 2))
 
   const upgradedDeps = Object.keys(
     Object.entries(basePackage.dependencies).filter(
@@ -39,6 +43,8 @@ async function analysePackage(
       ([key, value]) => value !== updatedPackage.devDependencies[key]
     )
   )
+
+  core.debug(JSON.stringify({upgradedDeps, upgradedDevDeps}, null, 2))
 
   const newDependencies: DependenciesList = {
     dependencies: newDeps,
