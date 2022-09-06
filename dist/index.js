@@ -8079,15 +8079,25 @@ function analysePackage(file) {
             ? Object.keys(basePackage.devDependencies)
             : [];
         // fetches information about the updated package file
-        const addedPackage = yield getLocalPackageInfo_1.default(file);
-        const addedDeps = Object.keys(addedPackage.dependencies);
-        const addedDevDeps = Object.keys(addedPackage.devDependencies);
+        const updatedPackage = yield getLocalPackageInfo_1.default(file);
+        const updatedDeps = Object.keys(updatedPackage.dependencies);
+        const updatedDevDeps = Object.keys(updatedPackage.devDependencies);
         // filters new dependencies not existing in the base branch
-        const newDeps = addedDeps.filter(dep => !baseDeps.includes(dep));
-        const newDevDeps = addedDevDeps.filter(dep => !baseDevDeps.includes(dep));
-        return {
+        const newDeps = updatedDeps.filter(dep => !baseDeps.includes(dep));
+        const newDevDeps = updatedDevDeps.filter(dep => !baseDevDeps.includes(dep));
+        const upgradedDeps = Object.keys(Object.entries(basePackage.dependencies).filter(([key, value]) => value !== updatedPackage.dependencies[key]));
+        const upgradedDevDeps = Object.keys(Object.entries(basePackage.devDependencies).filter(([key, value]) => value !== updatedPackage.devDependencies[key]));
+        const newDependencies = {
             dependencies: newDeps,
             devDependencies: newDevDeps
+        };
+        const updatedDependencies = {
+            dependencies: upgradedDeps,
+            devDependencies: upgradedDevDeps
+        };
+        return {
+            newDependencies,
+            updatedDependencies
         };
     });
 }
@@ -9072,27 +9082,36 @@ const analysePackage_1 = __importDefault(__webpack_require__(384));
  */
 function analyseAllPackages(files) {
     return __awaiter(this, void 0, void 0, function* () {
-        const dependencies = {
+        const newDependencies = {
+            dependencies: [],
+            devDependencies: []
+        };
+        const updatedDependencies = {
             dependencies: [],
             devDependencies: []
         };
         for (const file of files) {
             const result = yield analysePackage_1.default(file);
-            dependencies.dependencies = [
-                ...dependencies.dependencies,
-                ...result.dependencies
+            newDependencies.dependencies = [
+                ...newDependencies.dependencies,
+                ...result.newDependencies.dependencies
             ];
-            dependencies.devDependencies = [
-                ...dependencies.devDependencies,
-                ...result.devDependencies
+            newDependencies.devDependencies = [
+                ...newDependencies.devDependencies,
+                ...result.newDependencies.devDependencies
+            ];
+            updatedDependencies.dependencies = [
+                ...updatedDependencies.dependencies,
+                ...result.updatedDependencies.dependencies
+            ];
+            updatedDependencies.devDependencies = [
+                ...updatedDependencies.devDependencies,
+                ...result.updatedDependencies.devDependencies
             ];
         }
         return {
-            newDependencies: dependencies,
-            updatedDependencies: {
-                dependencies: ['@actions/core'],
-                devDependencies: []
-            }
+            newDependencies,
+            updatedDependencies
         };
     });
 }
