@@ -8126,7 +8126,7 @@ function analysePackage(file) {
         //     ([key, value]) => value !== updatedPackage.dependencies[key]
         //   )
         // )
-        const upgradedDeps = updatedDevDeps.filter(dep => basePackage.dependencies[dep] !== updatedPackage.dependencies[dep]);
+        const upgradedDeps = updatedDeps.filter(dep => basePackage.dependencies[dep] !== updatedPackage.dependencies[dep]);
         const upgradedDevDeps = updatedDevDeps.filter(dep => basePackage.devDependencies[dep] !== updatedPackage.devDependencies[dep]);
         core.debug(JSON.stringify({ upgradedDeps, upgradedDevDeps }, null, 2));
         const newDependencies = {
@@ -9198,7 +9198,8 @@ const header = (dep) => {
 const table = (dep) => {
     var _a, _b, _c, _d;
     return `
-| Description | ${dep.description} |
+| Field | Value |
+| ----------- | ------------------ |
 | Author | ${(_a = dep.author) === null || _a === void 0 ? void 0 : _a.name} |
 | License | ${dep.license} |
 | Contributors | ${(_b = dep.contributors) === null || _b === void 0 ? void 0 : _b.map(contributor => contributor.name).join(', ')} |

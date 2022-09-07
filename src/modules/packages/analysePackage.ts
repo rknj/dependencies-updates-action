@@ -40,7 +40,7 @@ async function analysePackage(
   //     ([key, value]) => value !== updatedPackage.dependencies[key]
   //   )
   // )
-  const upgradedDeps = updatedDevDeps.filter(
+  const upgradedDeps = updatedDeps.filter(
     dep => basePackage.dependencies[dep] !== updatedPackage.dependencies[dep]
   )
   const upgradedDevDeps = updatedDevDeps.filter(

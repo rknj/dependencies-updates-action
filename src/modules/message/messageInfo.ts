@@ -23,7 +23,8 @@ const header = (dep: FullMetadata): string => {
 
 const table = (dep: FullMetadata): string => {
   return `
-| Description | ${dep.description} |
+| Field | Value |
+| ----------- | ------------------ |
 | Author | ${dep.author?.name} |
 | License | ${dep.license} |
 | Contributors | ${dep.contributors
