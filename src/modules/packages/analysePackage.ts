@@ -57,7 +57,6 @@ async function analysePackage(
     devDependencies: upgradedDevDeps
   }
 
-  core.debug(JSON.stringify({newDependencies, updatedDependencies}, null, 2))
   return {
     newDependencies,
     updatedDependencies

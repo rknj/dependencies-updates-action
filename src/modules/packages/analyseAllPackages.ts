@@ -1,6 +1,5 @@
 import {DependenciesList} from '../../types/package'
 import analysePackage from './analysePackage'
-import * as core from '@actions/core'
 
 /**
  * Returns the list of all new dependencies not existing in the base branch
@@ -47,7 +46,6 @@ async function analyseAllPackages(
     ]
   }
 
-  core.debug(JSON.stringify({newDependencies, updatedDependencies}, null, 2))
   return {
     newDependencies,
     updatedDependencies

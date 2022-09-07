@@ -8134,7 +8134,6 @@ function analysePackage(file) {
             dependencies: upgradedDeps,
             devDependencies: upgradedDevDeps
         };
-        core.debug(JSON.stringify({ newDependencies, updatedDependencies }, null, 2));
         return {
             newDependencies,
             updatedDependencies
@@ -9112,16 +9111,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const analysePackage_1 = __importDefault(__webpack_require__(384));
-const core = __importStar(__webpack_require__(470));
 /**
  * Returns the list of all new dependencies not existing in the base branch
  * for all the packages provided as a parameter
@@ -9157,7 +9148,6 @@ function analyseAllPackages(files) {
                 ...result.updatedDependencies.devDependencies
             ];
         }
-        core.debug(JSON.stringify({ newDependencies, updatedDependencies }, null, 2));
         return {
             newDependencies,
             updatedDependencies
@@ -9193,17 +9183,15 @@ const header = (dep) => {
 `;
 };
 const table = (dep) => {
-    var _a, _b, _c, _d;
+    var _a, _b;
     return `
 | Field | Value |
 | ----------- | ------------------ |
 | Description | ${dep.description} |
-| Author | ${(_a = dep.author) === null || _a === void 0 ? void 0 : _a.name} |
-| License | ${dep.license} |
 | Version | ${dep.version} |
-| Contributors | ${(_b = dep.contributors) === null || _b === void 0 ? void 0 : _b.map(contributor => contributor.name).join(', ')} |
-| Created on | ${(_c = dep.time) === null || _c === void 0 ? void 0 : _c.created} |
-| Last modified | ${(_d = dep.time) === null || _d === void 0 ? void 0 : _d.modified} |
+| License | ${dep.license} |
+| Created on | ${(_a = dep.time) === null || _a === void 0 ? void 0 : _a.created} |
+| Last modified | ${(_b = dep.time) === null || _b === void 0 ? void 0 : _b.modified} |
 `;
 };
 

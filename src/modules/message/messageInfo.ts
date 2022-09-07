@@ -26,12 +26,8 @@ const table = (dep: FullMetadata): string => {
 | Field | Value |
 | ----------- | ------------------ |
 | Description | ${dep.description} |
-| Author | ${dep.author?.name} |
-| License | ${dep.license} |
 | Version | ${dep.version} |
-| Contributors | ${dep.contributors
-    ?.map(contributor => contributor.name)
-    .join(', ')} |
+| License | ${dep.license} |
 | Created on | ${dep.time?.created} |
 | Last modified | ${dep.time?.modified} |
 `
