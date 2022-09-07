@@ -25,8 +25,10 @@ const table = (dep: FullMetadata): string => {
   return `
 | Field | Value |
 | ----------- | ------------------ |
+| Description | ${dep.description} |
 | Author | ${dep.author?.name} |
 | License | ${dep.license} |
+| Version | ${dep.version} |
 | Contributors | ${dep.contributors
     ?.map(contributor => contributor.name)
     .join(', ')} |

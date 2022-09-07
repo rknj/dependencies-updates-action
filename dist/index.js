@@ -8120,14 +8120,11 @@ function analysePackage(file) {
         const newDeps = updatedDeps.filter(dep => !baseDeps.includes(dep));
         const newDevDeps = updatedDevDeps.filter(dep => !baseDevDeps.includes(dep));
         core.debug(JSON.stringify({ newDeps, newDevDeps }, null, 2));
-        core.debug(JSON.stringify({ basePackage, updatedPackage }, null, 2));
-        // const upgradedDeps = Object.keys(
-        //   Object.entries(basePackage.dependencies).filter(
-        //     ([key, value]) => value !== updatedPackage.dependencies[key]
-        //   )
-        // )
-        const upgradedDeps = updatedDeps.filter(dep => basePackage.dependencies[dep] !== updatedPackage.dependencies[dep]);
-        const upgradedDevDeps = updatedDevDeps.filter(dep => basePackage.devDependencies[dep] !== updatedPackage.devDependencies[dep]);
+        // filters upgraded dependencies
+        const upgradedDeps = updatedDeps.filter(dep => basePackage.dependencies[dep] &&
+            basePackage.dependencies[dep] !== updatedPackage.dependencies[dep]);
+        const upgradedDevDeps = updatedDevDeps.filter(dep => basePackage.devDependencies[dep] &&
+            basePackage.devDependencies[dep] !== updatedPackage.devDependencies[dep]);
         core.debug(JSON.stringify({ upgradedDeps, upgradedDevDeps }, null, 2));
         const newDependencies = {
             dependencies: newDeps,
@@ -9200,8 +9197,10 @@ const table = (dep) => {
     return `
 | Field | Value |
 | ----------- | ------------------ |
+| Description | ${dep.description} |
 | Author | ${(_a = dep.author) === null || _a === void 0 ? void 0 : _a.name} |
 | License | ${dep.license} |
+| Version | ${dep.version} |
 | Contributors | ${(_b = dep.contributors) === null || _b === void 0 ? void 0 : _b.map(contributor => contributor.name).join(', ')} |
 | Created on | ${(_c = dep.time) === null || _c === void 0 ? void 0 : _c.created} |
 | Last modified | ${(_d = dep.time) === null || _d === void 0 ? void 0 : _d.modified} |

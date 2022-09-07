@@ -34,17 +34,15 @@ async function analysePackage(
 
   core.debug(JSON.stringify({newDeps, newDevDeps}, null, 2))
 
-  core.debug(JSON.stringify({basePackage, updatedPackage}, null, 2))
-  // const upgradedDeps = Object.keys(
-  //   Object.entries(basePackage.dependencies).filter(
-  //     ([key, value]) => value !== updatedPackage.dependencies[key]
-  //   )
-  // )
+  // filters upgraded dependencies
   const upgradedDeps = updatedDeps.filter(
-    dep => basePackage.dependencies[dep] !== updatedPackage.dependencies[dep]
+    dep =>
+      basePackage.dependencies[dep] &&
+      basePackage.dependencies[dep] !== updatedPackage.dependencies[dep]
   )
   const upgradedDevDeps = updatedDevDeps.filter(
     dep =>
+      basePackage.devDependencies[dep] &&
       basePackage.devDependencies[dep] !== updatedPackage.devDependencies[dep]
   )
 
