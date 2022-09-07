@@ -8121,8 +8121,13 @@ function analysePackage(file) {
         const newDevDeps = updatedDevDeps.filter(dep => !baseDevDeps.includes(dep));
         core.debug(JSON.stringify({ newDeps, newDevDeps }, null, 2));
         core.debug(JSON.stringify({ basePackage, updatedPackage }, null, 2));
-        const upgradedDeps = Object.keys(Object.entries(basePackage.dependencies).filter(([key, value]) => value !== updatedPackage.dependencies[key]));
-        const upgradedDevDeps = Object.keys(Object.entries(basePackage.devDependencies).filter(([key, value]) => value !== updatedPackage.devDependencies[key]));
+        // const upgradedDeps = Object.keys(
+        //   Object.entries(basePackage.dependencies).filter(
+        //     ([key, value]) => value !== updatedPackage.dependencies[key]
+        //   )
+        // )
+        const upgradedDeps = updatedDevDeps.filter(dep => basePackage.dependencies[dep] !== updatedPackage.dependencies[dep]);
+        const upgradedDevDeps = updatedDevDeps.filter(dep => basePackage.devDependencies[dep] !== updatedPackage.devDependencies[dep]);
         core.debug(JSON.stringify({ upgradedDeps, upgradedDevDeps }, null, 2));
         const newDependencies = {
             dependencies: newDeps,
