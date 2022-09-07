@@ -8120,6 +8120,7 @@ function analysePackage(file) {
         const newDeps = updatedDeps.filter(dep => !baseDeps.includes(dep));
         const newDevDeps = updatedDevDeps.filter(dep => !baseDevDeps.includes(dep));
         core.debug(JSON.stringify({ newDeps, newDevDeps }, null, 2));
+        core.debug(JSON.stringify({ basePackage, updatedPackage }, null, 2));
         const upgradedDeps = Object.keys(Object.entries(basePackage.dependencies).filter(([key, value]) => value !== updatedPackage.dependencies[key]));
         const upgradedDevDeps = Object.keys(Object.entries(basePackage.devDependencies).filter(([key, value]) => value !== updatedPackage.devDependencies[key]));
         core.debug(JSON.stringify({ upgradedDeps, upgradedDevDeps }, null, 2));
@@ -9192,20 +9193,13 @@ const header = (dep) => {
 const table = (dep) => {
     var _a, _b, _c, _d;
     return `
-<table>
-    ${row('Description', dep.description)}
-    ${row('Author', (_a = dep.author) === null || _a === void 0 ? void 0 : _a.name)}
-    ${row('License', dep.license)}
-    ${row('Contributors', (_b = dep.contributors) === null || _b === void 0 ? void 0 : _b.map(contributor => contributor.name).join(', '))}    
-    ${row('Created on', (_c = dep.time) === null || _c === void 0 ? void 0 : _c.created)}
-    ${row('Last modified', (_d = dep.time) === null || _d === void 0 ? void 0 : _d.modified)}
-</table>
-    `;
-};
-const row = (title, field = '') => {
-    return `
-    ${field ? `<tr><td>${title}</td><td>${field}</td></tr>` : ``}
-    `;
+| Description | ${dep.description} |
+| Author | ${(_a = dep.author) === null || _a === void 0 ? void 0 : _a.name} |
+| License | ${dep.license} |
+| Contributors | ${(_b = dep.contributors) === null || _b === void 0 ? void 0 : _b.map(contributor => contributor.name).join(', ')} |
+| Created on | ${(_c = dep.time) === null || _c === void 0 ? void 0 : _c.created} |
+| Last modified | ${(_d = dep.time) === null || _d === void 0 ? void 0 : _d.modified} |
+`;
 };
 
 
