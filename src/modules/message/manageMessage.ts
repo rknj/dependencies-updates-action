@@ -40,6 +40,8 @@ async function manageMessage(
   // generate the new content for the message
   const message = await draftMessage(newDependencies, updatedDependencies)
 
+  core.debug(JSON.stringify({message}, null, 2))
+
   // publish the new content for the action
   await ghClient.setMessage(message)
 }

@@ -4387,6 +4387,7 @@ function manageMessage(newDependencies, updatedDependencies) {
         }
         // generate the new content for the message
         const message = yield draftMessage_1.default(newDependencies, updatedDependencies);
+        core.debug(JSON.stringify({ message }, null, 2));
         // publish the new content for the action
         yield ghClient.setMessage(message);
     });
