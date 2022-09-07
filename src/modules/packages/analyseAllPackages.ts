@@ -13,7 +13,11 @@ async function analyseAllPackages(
   newDependencies: DependenciesList
   updatedDependencies: DependenciesList
 }> {
-  const dependencies: DependenciesList = {
+  const newDependencies: DependenciesList = {
+    dependencies: [],
+    devDependencies: []
+  }
+  const updatedDependencies: DependenciesList = {
     dependencies: [],
     devDependencies: []
   }
@@ -21,23 +25,30 @@ async function analyseAllPackages(
   for (const file of files) {
     const result = await analysePackage(file)
 
-    dependencies.dependencies = [
-      ...dependencies.dependencies,
-      ...result.dependencies
+    newDependencies.dependencies = [
+      ...newDependencies.dependencies,
+      ...result.newDependencies.dependencies
     ]
 
-    dependencies.devDependencies = [
-      ...dependencies.devDependencies,
-      ...result.devDependencies
+    newDependencies.devDependencies = [
+      ...newDependencies.devDependencies,
+      ...result.newDependencies.devDependencies
+    ]
+
+    updatedDependencies.dependencies = [
+      ...updatedDependencies.dependencies,
+      ...result.updatedDependencies.dependencies
+    ]
+
+    updatedDependencies.devDependencies = [
+      ...updatedDependencies.devDependencies,
+      ...result.updatedDependencies.devDependencies
     ]
   }
 
   return {
-    newDependencies: dependencies,
-    updatedDependencies: {
-      dependencies: ['@actions/core'],
-      devDependencies: []
-    }
+    newDependencies,
+    updatedDependencies
   }
 }
 

@@ -1,6 +1,7 @@
 import {DependenciesList} from '../../types/package'
 import GitHubClient from '../../services/github-sdk'
 import draftMessage from './draftMessage'
+import * as core from '@actions/core'
 
 async function manageMessage(
   newDependencies?: DependenciesList,
@@ -14,6 +15,14 @@ async function manageMessage(
   const hasUpdatedDependencies =
     updatedDependencies?.dependencies.length ||
     updatedDependencies?.devDependencies.length
+
+  core.debug(
+    JSON.stringify(
+      {actionMessageId, hasNewDependencies, hasUpdatedDependencies},
+      null,
+      2
+    )
+  )
 
   // early-termination if there is no new dependencies and no existing message
   if (!actionMessageId && !hasNewDependencies && !hasUpdatedDependencies) return
@@ -30,6 +39,8 @@ async function manageMessage(
 
   // generate the new content for the message
   const message = await draftMessage(newDependencies, updatedDependencies)
+
+  core.debug(JSON.stringify({message}, null, 2))
 
   // publish the new content for the action
   await ghClient.setMessage(message)

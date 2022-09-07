@@ -4358,15 +4358,24 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const github_sdk_1 = __importDefault(__webpack_require__(908));
 const draftMessage_1 = __importDefault(__webpack_require__(382));
+const core = __importStar(__webpack_require__(470));
 function manageMessage(newDependencies, updatedDependencies) {
     return __awaiter(this, void 0, void 0, function* () {
         const ghClient = github_sdk_1.default.getClient();
         const actionMessageId = yield ghClient.fetchMessage();
         const hasNewDependencies = (newDependencies === null || newDependencies === void 0 ? void 0 : newDependencies.dependencies.length) || (newDependencies === null || newDependencies === void 0 ? void 0 : newDependencies.devDependencies.length);
         const hasUpdatedDependencies = (updatedDependencies === null || updatedDependencies === void 0 ? void 0 : updatedDependencies.dependencies.length) || (updatedDependencies === null || updatedDependencies === void 0 ? void 0 : updatedDependencies.devDependencies.length);
+        core.debug(JSON.stringify({ actionMessageId, hasNewDependencies, hasUpdatedDependencies }, null, 2));
         // early-termination if there is no new dependencies and no existing message
         if (!actionMessageId && !hasNewDependencies && !hasUpdatedDependencies)
             return;
@@ -4378,6 +4387,7 @@ function manageMessage(newDependencies, updatedDependencies) {
         }
         // generate the new content for the message
         const message = yield draftMessage_1.default(newDependencies, updatedDependencies);
+        core.debug(JSON.stringify({ message }, null, 2));
         // publish the new content for the action
         yield ghClient.setMessage(message);
     });
@@ -7989,12 +7999,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = __webpack_require__(470);
 const fp_1 = __webpack_require__(377);
 const package_json_1 = __importDefault(__webpack_require__(289));
 const comment_1 = __webpack_require__(374);
 const messageInfo_1 = __webpack_require__(451);
+const core = __importStar(__webpack_require__(470));
 function draftMessage(newDependencies, updatedDependencies) {
     return __awaiter(this, void 0, void 0, function* () {
         // list all dependencies to render
@@ -8004,6 +8022,7 @@ function draftMessage(newDependencies, updatedDependencies) {
             ...updatedDependencies.dependencies,
             ...updatedDependencies.devDependencies
         ];
+        core.debug(JSON.stringify({ listDependencies }, null, 2));
         // // fetch information for all dependencies to render
         const info = {};
         for (const dependency of listDependencies) {
@@ -8014,26 +8033,31 @@ function draftMessage(newDependencies, updatedDependencies) {
                 core_1.debug(`Package not found: ${dependency}`);
             }
         }
+        core.debug(JSON.stringify({ info }, null, 2));
         const dependenciesMessage = `
 ## Dependencies added
 ${newDependencies.dependencies.map(dep => messageInfo_1.messageInfo(info[dep])).join(`\n`)}
 `;
+        core.debug(JSON.stringify({ dependenciesMessage }, null, 2));
         const devDependenciesMessage = `
 ## Development dependencies added
 ${newDependencies.devDependencies.map(dep => messageInfo_1.messageInfo(info[dep])).join(`\n`)}
 `;
+        core.debug(JSON.stringify({ devDependenciesMessage }, null, 2));
         const updatedDependenciesMessage = `
 ## Dependencies updated
 ${updatedDependencies.dependencies
             .map(dep => messageInfo_1.messageInfo(info[dep]))
             .join(`\n`)}
 `;
+        core.debug(JSON.stringify({ updatedDependenciesMessage }, null, 2));
         const updatedDevDependenciesMessage = `
 ## Development dependencies updated
 ${updatedDependencies.devDependencies
             .map(dep => messageInfo_1.messageInfo(info[dep]))
             .join(`\n`)}
 `;
+        core.debug(JSON.stringify({ updatedDevDependenciesMessage }, null, 2));
         return fp_1.compact([
             comment_1.COMMENT_IDENTIFIER,
             newDependencies.dependencies.length && dependenciesMessage,
@@ -8065,9 +8089,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const github_sdk_1 = __importDefault(__webpack_require__(908));
 const getLocalPackageInfo_1 = __importDefault(__webpack_require__(226));
+const core = __importStar(__webpack_require__(470));
 function analysePackage(file) {
     return __awaiter(this, void 0, void 0, function* () {
         const ghClient = github_sdk_1.default.getClient();
@@ -8078,16 +8110,33 @@ function analysePackage(file) {
         const baseDevDeps = basePackage
             ? Object.keys(basePackage.devDependencies)
             : [];
+        core.debug(JSON.stringify({ baseDeps, baseDevDeps }, null, 2));
         // fetches information about the updated package file
-        const addedPackage = yield getLocalPackageInfo_1.default(file);
-        const addedDeps = Object.keys(addedPackage.dependencies);
-        const addedDevDeps = Object.keys(addedPackage.devDependencies);
+        const updatedPackage = yield getLocalPackageInfo_1.default(file);
+        const updatedDeps = Object.keys(updatedPackage.dependencies);
+        const updatedDevDeps = Object.keys(updatedPackage.devDependencies);
+        core.debug(JSON.stringify({ updatedDeps, updatedDevDeps }, null, 2));
         // filters new dependencies not existing in the base branch
-        const newDeps = addedDeps.filter(dep => !baseDeps.includes(dep));
-        const newDevDeps = addedDevDeps.filter(dep => !baseDevDeps.includes(dep));
-        return {
+        const newDeps = updatedDeps.filter(dep => !baseDeps.includes(dep));
+        const newDevDeps = updatedDevDeps.filter(dep => !baseDevDeps.includes(dep));
+        core.debug(JSON.stringify({ newDeps, newDevDeps }, null, 2));
+        // filters upgraded dependencies
+        const upgradedDeps = updatedDeps.filter(dep => basePackage.dependencies[dep] &&
+            basePackage.dependencies[dep] !== updatedPackage.dependencies[dep]);
+        const upgradedDevDeps = updatedDevDeps.filter(dep => basePackage.devDependencies[dep] &&
+            basePackage.devDependencies[dep] !== updatedPackage.devDependencies[dep]);
+        core.debug(JSON.stringify({ upgradedDeps, upgradedDevDeps }, null, 2));
+        const newDependencies = {
             dependencies: newDeps,
             devDependencies: newDevDeps
+        };
+        const updatedDependencies = {
+            dependencies: upgradedDeps,
+            devDependencies: upgradedDevDeps
+        };
+        return {
+            newDependencies,
+            updatedDependencies
         };
     });
 }
@@ -9072,27 +9121,36 @@ const analysePackage_1 = __importDefault(__webpack_require__(384));
  */
 function analyseAllPackages(files) {
     return __awaiter(this, void 0, void 0, function* () {
-        const dependencies = {
+        const newDependencies = {
+            dependencies: [],
+            devDependencies: []
+        };
+        const updatedDependencies = {
             dependencies: [],
             devDependencies: []
         };
         for (const file of files) {
             const result = yield analysePackage_1.default(file);
-            dependencies.dependencies = [
-                ...dependencies.dependencies,
-                ...result.dependencies
+            newDependencies.dependencies = [
+                ...newDependencies.dependencies,
+                ...result.newDependencies.dependencies
             ];
-            dependencies.devDependencies = [
-                ...dependencies.devDependencies,
-                ...result.devDependencies
+            newDependencies.devDependencies = [
+                ...newDependencies.devDependencies,
+                ...result.newDependencies.devDependencies
+            ];
+            updatedDependencies.dependencies = [
+                ...updatedDependencies.dependencies,
+                ...result.updatedDependencies.dependencies
+            ];
+            updatedDependencies.devDependencies = [
+                ...updatedDependencies.devDependencies,
+                ...result.updatedDependencies.devDependencies
             ];
         }
         return {
-            newDependencies: dependencies,
-            updatedDependencies: {
-                dependencies: ['@actions/core'],
-                devDependencies: []
-            }
+            newDependencies,
+            updatedDependencies
         };
     });
 }
@@ -9125,22 +9183,16 @@ const header = (dep) => {
 `;
 };
 const table = (dep) => {
-    var _a, _b, _c, _d;
+    var _a, _b;
     return `
-<table>
-    ${row('Description', dep.description)}
-    ${row('Author', (_a = dep.author) === null || _a === void 0 ? void 0 : _a.name)}
-    ${row('License', dep.license)}
-    ${row('Contributors', (_b = dep.contributors) === null || _b === void 0 ? void 0 : _b.map(contributor => contributor.name).join(', '))}    
-    ${row('Created on', (_c = dep.time) === null || _c === void 0 ? void 0 : _c.created)}
-    ${row('Last modified', (_d = dep.time) === null || _d === void 0 ? void 0 : _d.modified)}
-</table>
-    `;
-};
-const row = (title, field = '') => {
-    return `
-    ${field ? `<tr><td>${title}</td><td>${field}</td></tr>` : ``}
-    `;
+| Field | Value |
+| ----------- | ------------------ |
+| Description | ${dep.description} |
+| Version | ${dep.version} |
+| License | ${dep.license} |
+| Created on | ${(_a = dep.time) === null || _a === void 0 ? void 0 : _a.created} |
+| Last modified | ${(_b = dep.time) === null || _b === void 0 ? void 0 : _b.modified} |
+`;
 };
 
 

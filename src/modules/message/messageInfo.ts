@@ -23,22 +23,12 @@ const header = (dep: FullMetadata): string => {
 
 const table = (dep: FullMetadata): string => {
   return `
-<table>
-    ${row('Description', dep.description)}
-    ${row('Author', dep.author?.name)}
-    ${row('License', dep.license)}
-    ${row(
-      'Contributors',
-      dep.contributors?.map(contributor => contributor.name).join(', ')
-    )}    
-    ${row('Created on', dep.time?.created)}
-    ${row('Last modified', dep.time?.modified)}
-</table>
-    `
-}
-
-const row = (title: string, field: string = ''): string => {
-  return `
-    ${field ? `<tr><td>${title}</td><td>${field}</td></tr>` : ``}
-    `
+| Field | Value |
+| ----------- | ------------------ |
+| Description | ${dep.description} |
+| Version | ${dep.version} |
+| License | ${dep.license} |
+| Created on | ${dep.time?.created} |
+| Last modified | ${dep.time?.modified} |
+`
 }
