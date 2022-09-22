@@ -7,3 +7,4 @@ export const messageInfo = (dep: FullMetadata): string => {
 | License | ${dep.license} |
 | NPM | [${dep.name}](https://www.npmjs.com/package/${dep.name} |`
 }
+
