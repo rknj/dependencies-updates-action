@@ -9,3 +9,4 @@ export const messageInfo = (dep: FullMetadata): string => {
 | NPM | [${dep.name}](https://www.npmjs.com/package/${dep.name} |
 `
 }
+
