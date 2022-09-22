@@ -8035,35 +8035,21 @@ function draftMessage(newDependencies, updatedDependencies) {
         }
         core.debug(JSON.stringify({ info }, null, 2));
         const dependenciesMessage = `
-## Dependencies added
 ${newDependencies.dependencies.map(dep => messageInfo_1.messageInfo(info[dep])).join(`\n`)}
 `;
         core.debug(JSON.stringify({ dependenciesMessage }, null, 2));
-        const devDependenciesMessage = `
-## Development dependencies added
-${newDependencies.devDependencies.map(dep => messageInfo_1.messageInfo(info[dep])).join(`\n`)}
-`;
-        core.debug(JSON.stringify({ devDependenciesMessage }, null, 2));
         const updatedDependenciesMessage = `
-## Dependencies updated
 ${updatedDependencies.dependencies
             .map(dep => messageInfo_1.messageInfo(info[dep]))
             .join(`\n`)}
 `;
         core.debug(JSON.stringify({ updatedDependenciesMessage }, null, 2));
-        const updatedDevDependenciesMessage = `
-## Development dependencies updated
-${updatedDependencies.devDependencies
-            .map(dep => messageInfo_1.messageInfo(info[dep]))
-            .join(`\n`)}
-`;
-        core.debug(JSON.stringify({ updatedDevDependenciesMessage }, null, 2));
         return fp_1.compact([
             comment_1.COMMENT_IDENTIFIER,
+            '## Dependencies added\n|  |  |\n| ----------- | ------------------ |',
             newDependencies.dependencies.length && dependenciesMessage,
-            newDependencies.devDependencies.length && devDependenciesMessage,
-            updatedDependencies.dependencies.length && updatedDependenciesMessage,
-            updatedDependencies.devDependencies.length && updatedDevDependenciesMessage
+            '## Dependencies updated\n|  |  |\n| ----------- | ------------------ |',
+            updatedDependencies.dependencies.length && updatedDependenciesMessage
         ]).join(`\n`);
     });
 }
@@ -9167,31 +9153,11 @@ exports.default = analyseAllPackages;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.messageInfo = (dep) => {
     return `
-${header(dep)}
-
-${table(dep)}
-
-${dep.readme
-        ? `<details><summary>README.md</summary>${dep.readme}</details> `
-        : ``}
-`;
-};
-const header = (dep) => {
-    return `
-### ${dep.homepage ? `[${dep.name}](${dep.homepage})` : dep.name}
-
-`;
-};
-const table = (dep) => {
-    var _a, _b;
-    return `
-| Field | Value |
-| ----------- | ------------------ |
+| ${dep.homepage ? `[${dep.name}](${dep.homepage})` : dep.name} | |
 | Description | ${dep.description} |
 | Version | ${dep.version} |
 | License | ${dep.license} |
-| Created on | ${(_a = dep.time) === null || _a === void 0 ? void 0 : _a.created} |
-| Last modified | ${(_b = dep.time) === null || _b === void 0 ? void 0 : _b.modified} |
+| NPM | [${dep.name}](https://www.npmjs.com/package/${dep.name} |
 `;
 };
 
