@@ -9150,11 +9150,11 @@ exports.default = analyseAllPackages;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.messageInfo = (dep) => {
-    return `\n| ${dep.homepage ? `[${dep.name}](${dep.homepage})` : dep.name} | |
+    return `\n| [${dep.name}](https://www.npmjs.com/package/${dep.name}) | |
 | Description | ${dep.description} |
 | Version | ${dep.version} |
 | License | ${dep.license} |
-| NPM | [${dep.name}](https://www.npmjs.com/package/${dep.name}) |`;
+| Source | ${dep.homepage ? `[${dep.name}](${dep.homepage})` : dep.name} |`;
 };
 
 
