@@ -8044,11 +8044,11 @@ function draftMessage(newDependencies, updatedDependencies) {
         core.debug(JSON.stringify({ updatedDependenciesMessage }, null, 2));
         return fp_1.compact([
             comment_1.COMMENT_IDENTIFIER,
-            '## Dependencies added\n|  |  |\n| ----------- | ------------------ |',
+            '## Dependencies added\n\n|  |  |\n| ----------- | ------------------ |',
             newDependencies.dependencies.length && dependenciesMessage,
-            '## Dependencies updated\n|  |  |\n| ----------- | ------------------ |',
+            '## Dependencies updated\n\n|  |  |\n| ----------- | ------------------ |',
             updatedDependencies.dependencies.length && updatedDependenciesMessage
-        ]).join(`\n`);
+        ]).join(``);
     });
 }
 exports.default = draftMessage;
