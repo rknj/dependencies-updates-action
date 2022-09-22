@@ -8034,15 +8034,13 @@ function draftMessage(newDependencies, updatedDependencies) {
             }
         }
         core.debug(JSON.stringify({ info }, null, 2));
-        const dependenciesMessage = `
-${newDependencies.dependencies.map(dep => messageInfo_1.messageInfo(info[dep])).join(`\n`)}
-`;
-        core.debug(JSON.stringify({ dependenciesMessage }, null, 2));
-        const updatedDependenciesMessage = `
-${updatedDependencies.dependencies
+        const dependenciesMessage = `${newDependencies.dependencies
             .map(dep => messageInfo_1.messageInfo(info[dep]))
-            .join(`\n`)}
-`;
+            .join(`\n`)}`;
+        core.debug(JSON.stringify({ dependenciesMessage }, null, 2));
+        const updatedDependenciesMessage = `${updatedDependencies.dependencies
+            .map(dep => messageInfo_1.messageInfo(info[dep]))
+            .join(`\n`)}`;
         core.debug(JSON.stringify({ updatedDependenciesMessage }, null, 2));
         return fp_1.compact([
             comment_1.COMMENT_IDENTIFIER,
@@ -9152,13 +9150,11 @@ exports.default = analyseAllPackages;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.messageInfo = (dep) => {
-    return `
-| ${dep.homepage ? `[${dep.name}](${dep.homepage})` : dep.name} | |
+    return `| ${dep.homepage ? `[${dep.name}](${dep.homepage})` : dep.name} | |
 | Description | ${dep.description} |
 | Version | ${dep.version} |
 | License | ${dep.license} |
-| NPM | [${dep.name}](https://www.npmjs.com/package/${dep.name} |
-`;
+| NPM | [${dep.name}](https://www.npmjs.com/package/${dep.name} |`;
 };
 
 
