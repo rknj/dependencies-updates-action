@@ -32,19 +32,15 @@ async function draftMessage(
 
   core.debug(JSON.stringify({info}, null, 2))
 
-  const dependenciesMessage = `
-${newDependencies.dependencies.map(dep => messageInfo(info[dep])).join(`\n`)}
-`
+  const dependenciesMessage = `${newDependencies.dependencies
+    .map(dep => messageInfo(info[dep]))
+    .join(`\n`)}`
   core.debug(JSON.stringify({dependenciesMessage}, null, 2))
 
-
-  const updatedDependenciesMessage = `
-${updatedDependencies.dependencies
-  .map(dep => messageInfo(info[dep]))
-  .join(`\n`)}
-`
+  const updatedDependenciesMessage = `${updatedDependencies.dependencies
+    .map(dep => messageInfo(info[dep]))
+    .join(`\n`)}`
   core.debug(JSON.stringify({updatedDependenciesMessage}, null, 2))
-
 
   return compact([
     COMMENT_IDENTIFIER,
