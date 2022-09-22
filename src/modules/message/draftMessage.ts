@@ -44,9 +44,9 @@ async function draftMessage(
 
   return compact([
     COMMENT_IDENTIFIER,
-    '## Dependencies added\n\n|  |  |\n| ----------- | ------------------ |',
+    '\n## Dependencies added\n\n|  |  |\n| ----------- | ------------------ |',
     newDependencies.dependencies.length && dependenciesMessage,
-    '## Dependencies updated\n\n|  |  |\n| ----------- | ------------------ |',
+    '\n## Dependencies updated\n\n|  |  |\n| ----------- | ------------------ |',
     updatedDependencies.dependencies.length && updatedDependenciesMessage
   ]).join(``)
 }

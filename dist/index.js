@@ -8044,9 +8044,9 @@ function draftMessage(newDependencies, updatedDependencies) {
         core.debug(JSON.stringify({ updatedDependenciesMessage }, null, 2));
         return fp_1.compact([
             comment_1.COMMENT_IDENTIFIER,
-            '## Dependencies added\n\n|  |  |\n| ----------- | ------------------ |',
+            '\n## Dependencies added\n\n|  |  |\n| ----------- | ------------------ |',
             newDependencies.dependencies.length && dependenciesMessage,
-            '## Dependencies updated\n\n|  |  |\n| ----------- | ------------------ |',
+            '\n## Dependencies updated\n\n|  |  |\n| ----------- | ------------------ |',
             updatedDependencies.dependencies.length && updatedDependenciesMessage
         ]).join(``);
     });
@@ -9150,11 +9150,11 @@ exports.default = analyseAllPackages;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.messageInfo = (dep) => {
-    return `| ${dep.homepage ? `[${dep.name}](${dep.homepage})` : dep.name} | |
+    return `\n| ${dep.homepage ? `[${dep.name}](${dep.homepage})` : dep.name} | |
 | Description | ${dep.description} |
 | Version | ${dep.version} |
 | License | ${dep.license} |
-| NPM | [${dep.name}](https://www.npmjs.com/package/${dep.name} |`;
+| NPM | [${dep.name}](https://www.npmjs.com/package/${dep.name}) |`;
 };
 
 
