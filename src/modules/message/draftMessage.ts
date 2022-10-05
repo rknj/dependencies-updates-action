@@ -48,7 +48,7 @@ async function draftMessage(
     newDependencies.dependencies.length && dependenciesMessage,
     '\n## Dependencies updated\n\n|  |  |\n| ----------- | ------------------ |',
     updatedDependencies.dependencies.length && updatedDependenciesMessage
-  ]).join(``)
+  ]).join(`\n`)
 }
 
 export default draftMessage

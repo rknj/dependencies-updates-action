@@ -8048,7 +8048,7 @@ function draftMessage(newDependencies, updatedDependencies) {
             newDependencies.dependencies.length && dependenciesMessage,
             '\n## Dependencies updated\n\n|  |  |\n| ----------- | ------------------ |',
             updatedDependencies.dependencies.length && updatedDependenciesMessage
-        ]).join(``);
+        ]).join(`\n`);
     });
 }
 exports.default = draftMessage;
@@ -9150,7 +9150,7 @@ exports.default = analyseAllPackages;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.messageInfo = (dep) => {
-    return `\n| [${dep.name}](https://www.npmjs.com/package/${dep.name}) | |
+    return `| [${dep.name}](https://www.npmjs.com/package/${dep.name}) | |
 | Description | ${dep.description} |
 | Version | ${dep.version} |
 | License | ${dep.license} |
