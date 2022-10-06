@@ -33,20 +33,19 @@ async function draftMessage(
   core.debug(JSON.stringify({info}, null, 2))
 
   const dependenciesMessage = `${newDependencies.dependencies
-    .map(dep => messageInfo(info[dep]))
+    .map(dep => messageInfo('Added', info[dep]))
     .join(`\n`)}`
   core.debug(JSON.stringify({dependenciesMessage}, null, 2))
 
   const updatedDependenciesMessage = `${updatedDependencies.dependencies
-    .map(dep => messageInfo(info[dep]))
+    .map(dep => messageInfo('Updated', info[dep]))
     .join(`\n`)}`
   core.debug(JSON.stringify({updatedDependenciesMessage}, null, 2))
 
   return compact([
     COMMENT_IDENTIFIER,
-    '\n| Dependency added | Description | Version | License | Source |\n| ----------- | ------------------ | ------------------ | ------------------ | ------------------ |',
+    '\n| Dependency | Description | Version | License | Source |\n| ----------- | ------------------ | ------------------ | ------------------ | ------------------ |',
     newDependencies.dependencies.length && dependenciesMessage,
-    '\n| Dependency updated | Description | Version | License | Source |\n| ----------- | ------------------ | ------------------ | ------------------ | ------------------ |',
     updatedDependencies.dependencies.length && updatedDependenciesMessage
   ]).join(`\n`)
 }
