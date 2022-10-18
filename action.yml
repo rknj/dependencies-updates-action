@@ -1,6 +1,5 @@
-name: Highlight new NPM Dependencies
-description: Add a message in Pull Request with basic information when new dependencies are added
-author: Damien Senger <hello@raccoon.studio>
+name: Highlight new and updated NPM Dependencies
+description: Add a message in Pull Request with basic information when dependencie are updated or when new dependencies are added
 branding:
   icon: plus-square
   color: gray-dark
