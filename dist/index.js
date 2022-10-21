@@ -8073,7 +8073,8 @@ function draftMessage(newDependencies, updatedDependencies, showDevDependencies,
             .join(`\n`)}`;
         core.debug(JSON.stringify({ updatedDependenciesMessage }, null, 2));
         let devMessage = '';
-        if (showDevDependencies === 'true') {
+        const hasUpdatedDevDependencies = (newDependencies === null || newDependencies === void 0 ? void 0 : newDependencies.devDependencies.length) || (updatedDependencies === null || updatedDependencies === void 0 ? void 0 : updatedDependencies.devDependencies.length);
+        if (showDevDependencies === 'true' && hasUpdatedDevDependencies) {
             const devDependenciesMessage = `${newDependencies.devDependencies
                 .map(dep => messageInfo_1.messageInfo('Added', info[dep]))
                 .join(`\n`)}`;
@@ -8090,10 +8091,21 @@ function draftMessage(newDependencies, updatedDependencies, showDevDependencies,
                 updatedDependencies.devDependencies.length &&
                     updatedDevDependenciesMessage
             ]).join(`\n`);
+            core.debug(JSON.stringify({
+                hasUpdatedDevDependencies,
+                devDependenciesMessage,
+                updatedDevDependenciesMessage
+            }, null, 2));
         }
         let checklistSection = '';
         if (showChecklist === 'true') {
-            checklistSection = '\n';
+            checklistSection = fp_1.compact([
+                '- [ ] Did you check the impact on the platform?',
+                '- [ ] Did you check if these libraries are still supported?',
+                '- [ ] Did you check if there are security vulnerabilities?',
+                '- [ ] Did you check if the licenses are compatible with our products?',
+                ' '
+            ]).join(`\n`);
         }
         else {
             checklistSection = '\n';

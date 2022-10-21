@@ -50,7 +50,10 @@ async function draftMessage(
   core.debug(JSON.stringify({updatedDependenciesMessage}, null, 2))
 
   let devMessage = ''
-  if (showDevDependencies === 'true') {
+  const hasUpdatedDevDependencies =
+    newDependencies?.devDependencies.length ||
+    updatedDependencies?.devDependencies.length
+  if (showDevDependencies === 'true' && hasUpdatedDevDependencies) {
     const devDependenciesMessage = `${newDependencies.devDependencies
       .map(dep => messageInfo('Added', info[dep]))
       .join(`\n`)}`
@@ -69,11 +72,28 @@ async function draftMessage(
       updatedDependencies.devDependencies.length &&
         updatedDevDependenciesMessage
     ]).join(`\n`)
+    core.debug(
+      JSON.stringify(
+        {
+          hasUpdatedDevDependencies,
+          devDependenciesMessage,
+          updatedDevDependenciesMessage
+        },
+        null,
+        2
+      )
+    )
   }
 
   let checklistSection = ''
   if (showChecklist === 'true') {
-    checklistSection = '\n'
+    checklistSection = compact([
+      '- [ ] Did you check the impact on the platform?',
+      '- [ ] Did you check if these libraries are still supported?',
+      '- [ ] Did you check if there are security vulnerabilities?',
+      '- [ ] Did you check if the licenses are compatible with our products?',
+      ' '
+    ]).join(`\n`)
   } else {
     checklistSection = '\n'
   }
