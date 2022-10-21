@@ -4369,7 +4369,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const github_sdk_1 = __importDefault(__webpack_require__(908));
 const draftMessage_1 = __importDefault(__webpack_require__(382));
 const core = __importStar(__webpack_require__(470));
-function manageMessage(showDevDependencies, showChecklist, newDependencies, updatedDependencies) {
+function manageMessage(showDevDependencies, showChecklist, newDependencies, updatedDependencies, removedDependencies) {
     return __awaiter(this, void 0, void 0, function* () {
         const ghClient = github_sdk_1.default.getClient();
         const actionMessageId = yield ghClient.fetchMessage();
@@ -4381,25 +4381,37 @@ function manageMessage(showDevDependencies, showChecklist, newDependencies, upda
         let hasUpdatedDependencies = updatedDependencies === null || updatedDependencies === void 0 ? void 0 : updatedDependencies.dependencies.length;
         if (showDevDependencies === 'true') {
             hasUpdatedDependencies =
-                hasNewDependencies || (updatedDependencies === null || updatedDependencies === void 0 ? void 0 : updatedDependencies.devDependencies.length);
+                hasUpdatedDependencies || (updatedDependencies === null || updatedDependencies === void 0 ? void 0 : updatedDependencies.devDependencies.length);
+        }
+        let hasRemovedDependencies = removedDependencies === null || removedDependencies === void 0 ? void 0 : removedDependencies.dependencies.length;
+        if (showDevDependencies === 'true') {
+            hasRemovedDependencies =
+                hasRemovedDependencies || (removedDependencies === null || removedDependencies === void 0 ? void 0 : removedDependencies.devDependencies.length);
         }
         core.debug(JSON.stringify({
             actionMessageId,
             hasNewDependencies,
             hasUpdatedDependencies,
+            hasRemovedDependencies,
             showDevDependencies
         }, null, 2));
         // early-termination if there is no new dependencies and no existing message
-        if (!actionMessageId && !hasNewDependencies && !hasUpdatedDependencies)
+        if (!actionMessageId &&
+            !hasNewDependencies &&
+            !hasUpdatedDependencies &&
+            !hasRemovedDependencies)
             return;
         // termination with message deletion if existing message & no new dependencies
-        if (actionMessageId && !hasNewDependencies && !hasUpdatedDependencies)
+        if (actionMessageId &&
+            !hasNewDependencies &&
+            !hasUpdatedDependencies &&
+            !hasRemovedDependencies)
             return ghClient.deleteMessage();
-        if (!newDependencies || !updatedDependencies) {
+        if (!newDependencies || !updatedDependencies || !removedDependencies) {
             throw new Error('No new or updated dependencies should have been solved by the previous conditions');
         }
         // generate the new content for the message
-        const message = yield draftMessage_1.default(newDependencies, updatedDependencies, showDevDependencies, showChecklist);
+        const message = yield draftMessage_1.default(newDependencies, updatedDependencies, removedDependencies, showDevDependencies, showChecklist);
         core.debug(JSON.stringify({ message }, null, 2));
         // publish the new content for the action
         yield ghClient.setMessage(message);
@@ -4650,10 +4662,10 @@ function run() {
             const showDevDependencies = core.getInput('show_dev_dependencies');
             const showChecklist = core.getInput('show_checklist');
             // fetch list of new dependencies for all detected packages
-            const { newDependencies, updatedDependencies } = yield analyseAllPackages_1.default(packageFiles, showDevDependencies);
-            core.debug(JSON.stringify({ newDependencies, updatedDependencies }, null, 2));
+            const { newDependencies, updatedDependencies, removedDependencies } = yield analyseAllPackages_1.default(packageFiles, showDevDependencies);
+            core.debug(JSON.stringify({ newDependencies, updatedDependencies, removedDependencies }, null, 2));
             // manage the publication of a message listing the new dependencies if needed
-            yield manageMessage_1.default(showDevDependencies, showChecklist, newDependencies, updatedDependencies);
+            yield manageMessage_1.default(showDevDependencies, showChecklist, newDependencies, updatedDependencies, removedDependencies);
         }
         catch (error) {
             core.setFailed(error.message);
@@ -8043,14 +8055,16 @@ const comment_1 = __webpack_require__(374);
 const messageInfo_1 = __webpack_require__(451);
 const core = __importStar(__webpack_require__(470));
 const message_1 = __webpack_require__(331);
-function draftMessage(newDependencies, updatedDependencies, showDevDependencies, showChecklist) {
+function draftMessage(newDependencies, updatedDependencies, removedDependencies, showDevDependencies, showChecklist) {
     return __awaiter(this, void 0, void 0, function* () {
         // list all dependencies to render
         const listDependencies = [
             ...newDependencies.dependencies,
             ...newDependencies.devDependencies,
             ...updatedDependencies.dependencies,
-            ...updatedDependencies.devDependencies
+            ...updatedDependencies.devDependencies,
+            ...removedDependencies.dependencies,
+            ...removedDependencies.devDependencies
         ];
         core.debug(JSON.stringify({ listDependencies }, null, 2));
         // // fetch information for all dependencies to render
@@ -8072,8 +8086,12 @@ function draftMessage(newDependencies, updatedDependencies, showDevDependencies,
             .map(dep => messageInfo_1.messageInfo('Updated', info[dep]))
             .join(`\n`)}`;
         core.debug(JSON.stringify({ updatedDependenciesMessage }, null, 2));
+        const removedDependenciesMessage = `${removedDependencies.dependencies
+            .map(dep => messageInfo_1.messageInfo('Removed', info[dep]))
+            .join(`\n`)}`;
+        core.debug(JSON.stringify({ removedDependenciesMessage }, null, 2));
         let devMessage = '';
-        const hasUpdatedDevDependencies = (newDependencies === null || newDependencies === void 0 ? void 0 : newDependencies.devDependencies.length) || (updatedDependencies === null || updatedDependencies === void 0 ? void 0 : updatedDependencies.devDependencies.length);
+        const hasUpdatedDevDependencies = (newDependencies === null || newDependencies === void 0 ? void 0 : newDependencies.devDependencies.length) || (updatedDependencies === null || updatedDependencies === void 0 ? void 0 : updatedDependencies.devDependencies.length) || (removedDependencies === null || removedDependencies === void 0 ? void 0 : removedDependencies.devDependencies.length);
         if (showDevDependencies === 'true' && hasUpdatedDevDependencies) {
             const devDependenciesMessage = `${newDependencies.devDependencies
                 .map(dep => messageInfo_1.messageInfo('Added', info[dep]))
@@ -8083,21 +8101,28 @@ function draftMessage(newDependencies, updatedDependencies, showDevDependencies,
                 .map(dep => messageInfo_1.messageInfo('Updated', info[dep]))
                 .join(`\n`)}`;
             core.debug(JSON.stringify({ updatedDevDependenciesMessage }, null, 2));
+            const removedDevDependenciesMessage = `${removedDependencies.devDependencies
+                .map(dep => messageInfo_1.messageInfo('Removed', info[dep]))
+                .join(`\n`)}`;
+            core.debug(JSON.stringify({ removedDevDependenciesMessage }, null, 2));
             devMessage = fp_1.compact([
                 ' ',
                 message_1.DEVDEPENDENCY_COMMENT_TABLE_HEADER,
                 message_1.COMMENT_TABLE_LINE,
                 newDependencies.devDependencies.length && devDependenciesMessage,
                 updatedDependencies.devDependencies.length &&
-                    updatedDevDependenciesMessage
+                    updatedDevDependenciesMessage,
+                removedDependencies.devDependencies.length &&
+                    removedDevDependenciesMessage
             ]).join(`\n`);
             core.debug(JSON.stringify({
                 hasUpdatedDevDependencies,
                 devDependenciesMessage,
-                updatedDevDependenciesMessage
+                updatedDevDependenciesMessage,
+                removedDevDependenciesMessage
             }, null, 2));
         }
-        let checklistSection = '';
+        let checklistSection;
         if (showChecklist === 'true') {
             checklistSection = fp_1.compact([
                 '- [ ] Did you check the impact on the platform?',
@@ -8117,6 +8142,7 @@ function draftMessage(newDependencies, updatedDependencies, showDevDependencies,
             message_1.COMMENT_TABLE_LINE,
             newDependencies.dependencies.length && dependenciesMessage,
             updatedDependencies.dependencies.length && updatedDependenciesMessage,
+            removedDependencies.dependencies.length && removedDependenciesMessage,
             devMessage
         ]).join(`\n`);
     });
@@ -8173,8 +8199,12 @@ function analysePackage(file, showDevDependencies) {
         const upgradedDeps = updatedDeps.filter(dep => basePackage.dependencies[dep] &&
             basePackage.dependencies[dep] !== updatedPackage.dependencies[dep]);
         core.debug(JSON.stringify({ upgradedDeps }, null, 2));
+        // filters removed dependencies
+        const removedDeps = baseDeps.filter(dep => !updatedDeps.includes(dep));
+        core.debug(JSON.stringify({ removedDeps }, null, 2));
         let newDevDeps = [];
         let upgradedDevDeps = [];
+        let removedDevDeps = [];
         if (showDevDependencies === 'true') {
             const baseDevDeps = basePackage
                 ? Object.keys(basePackage.devDependencies)
@@ -8182,11 +8212,16 @@ function analysePackage(file, showDevDependencies) {
             core.debug(JSON.stringify({ baseDevDeps }, null, 2));
             const updatedDevDeps = Object.keys(updatedPackage.devDependencies);
             core.debug(JSON.stringify({ updatedDevDeps }, null, 2));
+            // filters new dependencies not existing in the base branch
             newDevDeps = updatedDevDeps.filter(dep => !baseDevDeps.includes(dep));
             core.debug(JSON.stringify({ newDevDeps }, null, 2));
+            // filters upgraded dependencies
             upgradedDevDeps = updatedDevDeps.filter(dep => basePackage.devDependencies[dep] &&
                 basePackage.devDependencies[dep] !== updatedPackage.devDependencies[dep]);
             core.debug(JSON.stringify({ upgradedDevDeps }, null, 2));
+            // filters removed dependencies
+            removedDevDeps = baseDevDeps.filter(dep => !updatedDevDeps.includes(dep));
+            core.debug(JSON.stringify({ removedDevDeps }, null, 2));
         }
         const newDependencies = {
             dependencies: newDeps,
@@ -8196,9 +8231,14 @@ function analysePackage(file, showDevDependencies) {
             dependencies: upgradedDeps,
             devDependencies: upgradedDevDeps
         };
+        const removedDependencies = {
+            dependencies: removedDeps,
+            devDependencies: removedDevDeps
+        };
         return {
             newDependencies,
-            updatedDependencies
+            updatedDependencies,
+            removedDependencies
         };
     });
 }
@@ -9192,6 +9232,10 @@ function analyseAllPackages(files, showDevDependencies) {
             dependencies: [],
             devDependencies: []
         };
+        const removedDependencies = {
+            dependencies: [],
+            devDependencies: []
+        };
         for (const file of files) {
             const result = yield analysePackage_1.default(file, showDevDependencies);
             newDependencies.dependencies = [
@@ -9202,6 +9246,10 @@ function analyseAllPackages(files, showDevDependencies) {
                 ...updatedDependencies.dependencies,
                 ...result.updatedDependencies.dependencies
             ];
+            removedDependencies.dependencies = [
+                ...removedDependencies.dependencies,
+                ...result.removedDependencies.dependencies
+            ];
             if (showDevDependencies === 'true') {
                 newDependencies.devDependencies = [
                     ...newDependencies.devDependencies,
@@ -9211,11 +9259,16 @@ function analyseAllPackages(files, showDevDependencies) {
                     ...updatedDependencies.devDependencies,
                     ...result.updatedDependencies.devDependencies
                 ];
+                removedDependencies.devDependencies = [
+                    ...removedDependencies.devDependencies,
+                    ...result.removedDependencies.devDependencies
+                ];
             }
         }
         return {
             newDependencies,
-            updatedDependencies
+            updatedDependencies,
+            removedDependencies
         };
     });
 }
