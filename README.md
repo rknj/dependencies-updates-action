@@ -45,13 +45,15 @@ on:
   - pull_request
 
 jobs:
-  check_new_dependencies:
+  check_dependencies:
     runs-on: ubuntu-latest
     steps:
-      - name: Check for new dependencies
-        uses: rknj/dependencies-updates-action@v1.0.0
+      - name: Check for new and updated dependencies
+        uses: rknj/dependencies-updates-action@v1.1.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          show_dev_dependencies: 'false'
+          show_checklist: 'true'
 
 ```
 
@@ -63,7 +65,12 @@ Build the typescript and package it for distribution
 $ npm run build && npm run pack
 ```
 
-## Example
+## Example (with the optional checklist)
+
+- [ ] Did you check the impact on the platform?
+- [ ] Did you check if these libraries are still supported?
+- [ ] Did you check if there are security vulnerabilities?
+- [ ] Did you check if the licenses are compatible with our products?
 
 | Dependency | Description | Version | License | Source |
 | ----------- | ------------------ | ------------------ | ------------------ | ------------------ |
