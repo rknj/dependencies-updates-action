@@ -14,6 +14,7 @@ import {
 async function draftMessage(
   newDependencies: DependenciesList,
   updatedDependencies: DependenciesList,
+  removedDependencies: DependenciesList,
   showDevDependencies: string,
   showChecklist: string
 ): Promise<string> {
@@ -22,7 +23,9 @@ async function draftMessage(
     ...newDependencies.dependencies,
     ...newDependencies.devDependencies,
     ...updatedDependencies.dependencies,
-    ...updatedDependencies.devDependencies
+    ...updatedDependencies.devDependencies,
+    ...removedDependencies.dependencies,
+    ...removedDependencies.devDependencies
   ]
 
   core.debug(JSON.stringify({listDependencies}, null, 2))
@@ -49,10 +52,16 @@ async function draftMessage(
     .join(`\n`)}`
   core.debug(JSON.stringify({updatedDependenciesMessage}, null, 2))
 
+  const removedDependenciesMessage = `${removedDependencies.dependencies
+    .map(dep => messageInfo('Removed', info[dep]))
+    .join(`\n`)}`
+  core.debug(JSON.stringify({removedDependenciesMessage}, null, 2))
+
   let devMessage = ''
   const hasUpdatedDevDependencies =
     newDependencies?.devDependencies.length ||
-    updatedDependencies?.devDependencies.length
+    updatedDependencies?.devDependencies.length ||
+    removedDependencies?.devDependencies.length
   if (showDevDependencies === 'true' && hasUpdatedDevDependencies) {
     const devDependenciesMessage = `${newDependencies.devDependencies
       .map(dep => messageInfo('Added', info[dep]))
@@ -64,20 +73,28 @@ async function draftMessage(
       .join(`\n`)}`
     core.debug(JSON.stringify({updatedDevDependenciesMessage}, null, 2))
 
+    const removedDevDependenciesMessage = `${removedDependencies.devDependencies
+      .map(dep => messageInfo('Removed', info[dep]))
+      .join(`\n`)}`
+    core.debug(JSON.stringify({removedDevDependenciesMessage}, null, 2))
+
     devMessage = compact([
       ' ',
       DEVDEPENDENCY_COMMENT_TABLE_HEADER,
       COMMENT_TABLE_LINE,
       newDependencies.devDependencies.length && devDependenciesMessage,
       updatedDependencies.devDependencies.length &&
-        updatedDevDependenciesMessage
+        updatedDevDependenciesMessage,
+      removedDependencies.devDependencies.length &&
+        removedDevDependenciesMessage
     ]).join(`\n`)
     core.debug(
       JSON.stringify(
         {
           hasUpdatedDevDependencies,
           devDependenciesMessage,
-          updatedDevDependenciesMessage
+          updatedDevDependenciesMessage,
+          removedDevDependenciesMessage
         },
         null,
         2
@@ -85,7 +102,7 @@ async function draftMessage(
     )
   }
 
-  let checklistSection = ''
+  let checklistSection: string
   if (showChecklist === 'true') {
     checklistSection = compact([
       '- [ ] Did you check the impact on the platform?',
@@ -105,6 +122,7 @@ async function draftMessage(
     COMMENT_TABLE_LINE,
     newDependencies.dependencies.length && dependenciesMessage,
     updatedDependencies.dependencies.length && updatedDependenciesMessage,
+    removedDependencies.dependencies.length && removedDependenciesMessage,
     devMessage
   ]).join(`\n`)
 }

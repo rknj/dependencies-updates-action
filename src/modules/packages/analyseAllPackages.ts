@@ -14,12 +14,17 @@ async function analyseAllPackages(
 ): Promise<{
   newDependencies: DependenciesList
   updatedDependencies: DependenciesList
+  removedDependencies: DependenciesList
 }> {
   const newDependencies: DependenciesList = {
     dependencies: [],
     devDependencies: []
   }
   const updatedDependencies: DependenciesList = {
+    dependencies: [],
+    devDependencies: []
+  }
+  const removedDependencies: DependenciesList = {
     dependencies: [],
     devDependencies: []
   }
@@ -37,6 +42,11 @@ async function analyseAllPackages(
       ...result.updatedDependencies.dependencies
     ]
 
+    removedDependencies.dependencies = [
+      ...removedDependencies.dependencies,
+      ...result.removedDependencies.dependencies
+    ]
+
     if (showDevDependencies === 'true') {
       newDependencies.devDependencies = [
         ...newDependencies.devDependencies,
@@ -47,12 +57,18 @@ async function analyseAllPackages(
         ...updatedDependencies.devDependencies,
         ...result.updatedDependencies.devDependencies
       ]
+
+      removedDependencies.devDependencies = [
+        ...removedDependencies.devDependencies,
+        ...result.removedDependencies.devDependencies
+      ]
     }
   }
 
   return {
     newDependencies,
-    updatedDependencies
+    updatedDependencies,
+    removedDependencies
   }
 }
 

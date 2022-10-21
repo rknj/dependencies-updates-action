@@ -9,6 +9,7 @@ async function analysePackage(
 ): Promise<{
   newDependencies: DependenciesList
   updatedDependencies: DependenciesList
+  removedDependencies: DependenciesList
 }> {
   const ghClient = GitHubClient.getClient()
 
@@ -35,8 +36,13 @@ async function analysePackage(
   )
   core.debug(JSON.stringify({upgradedDeps}, null, 2))
 
+  // filters removed dependencies
+  const removedDeps = baseDeps.filter(dep => !updatedDeps.includes(dep))
+  core.debug(JSON.stringify({removedDeps}, null, 2))
+
   let newDevDeps: string[] = []
   let upgradedDevDeps: string[] = []
+  let removedDevDeps: string[] = []
 
   if (showDevDependencies === 'true') {
     const baseDevDeps = basePackage
@@ -47,15 +53,21 @@ async function analysePackage(
     const updatedDevDeps = Object.keys(updatedPackage.devDependencies)
     core.debug(JSON.stringify({updatedDevDeps}, null, 2))
 
+    // filters new dependencies not existing in the base branch
     newDevDeps = updatedDevDeps.filter(dep => !baseDevDeps.includes(dep))
     core.debug(JSON.stringify({newDevDeps}, null, 2))
 
+    // filters upgraded dependencies
     upgradedDevDeps = updatedDevDeps.filter(
       dep =>
         basePackage.devDependencies[dep] &&
         basePackage.devDependencies[dep] !== updatedPackage.devDependencies[dep]
     )
     core.debug(JSON.stringify({upgradedDevDeps}, null, 2))
+
+    // filters removed dependencies
+    removedDevDeps = baseDevDeps.filter(dep => !updatedDevDeps.includes(dep))
+    core.debug(JSON.stringify({removedDevDeps}, null, 2))
   }
 
   const newDependencies: DependenciesList = {
@@ -66,10 +78,15 @@ async function analysePackage(
     dependencies: upgradedDeps,
     devDependencies: upgradedDevDeps
   }
+  const removedDependencies: DependenciesList = {
+    dependencies: removedDeps,
+    devDependencies: removedDevDeps
+  }
 
   return {
     newDependencies,
-    updatedDependencies
+    updatedDependencies,
+    removedDependencies
   }
 }
 
