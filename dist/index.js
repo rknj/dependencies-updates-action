@@ -4369,13 +4369,26 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const github_sdk_1 = __importDefault(__webpack_require__(908));
 const draftMessage_1 = __importDefault(__webpack_require__(382));
 const core = __importStar(__webpack_require__(470));
-function manageMessage(newDependencies, updatedDependencies) {
+function manageMessage(showDevDependencies, showChecklist, newDependencies, updatedDependencies) {
     return __awaiter(this, void 0, void 0, function* () {
         const ghClient = github_sdk_1.default.getClient();
         const actionMessageId = yield ghClient.fetchMessage();
-        const hasNewDependencies = (newDependencies === null || newDependencies === void 0 ? void 0 : newDependencies.dependencies.length) || (newDependencies === null || newDependencies === void 0 ? void 0 : newDependencies.devDependencies.length);
-        const hasUpdatedDependencies = (updatedDependencies === null || updatedDependencies === void 0 ? void 0 : updatedDependencies.dependencies.length) || (updatedDependencies === null || updatedDependencies === void 0 ? void 0 : updatedDependencies.devDependencies.length);
-        core.debug(JSON.stringify({ actionMessageId, hasNewDependencies, hasUpdatedDependencies }, null, 2));
+        let hasNewDependencies = newDependencies === null || newDependencies === void 0 ? void 0 : newDependencies.dependencies.length;
+        if (showDevDependencies === 'true') {
+            hasNewDependencies =
+                hasNewDependencies || (newDependencies === null || newDependencies === void 0 ? void 0 : newDependencies.devDependencies.length);
+        }
+        let hasUpdatedDependencies = updatedDependencies === null || updatedDependencies === void 0 ? void 0 : updatedDependencies.dependencies.length;
+        if (showDevDependencies === 'true') {
+            hasUpdatedDependencies =
+                hasNewDependencies || (updatedDependencies === null || updatedDependencies === void 0 ? void 0 : updatedDependencies.devDependencies.length);
+        }
+        core.debug(JSON.stringify({
+            actionMessageId,
+            hasNewDependencies,
+            hasUpdatedDependencies,
+            showDevDependencies
+        }, null, 2));
         // early-termination if there is no new dependencies and no existing message
         if (!actionMessageId && !hasNewDependencies && !hasUpdatedDependencies)
             return;
@@ -4386,7 +4399,7 @@ function manageMessage(newDependencies, updatedDependencies) {
             throw new Error('No new or updated dependencies should have been solved by the previous conditions');
         }
         // generate the new content for the message
-        const message = yield draftMessage_1.default(newDependencies, updatedDependencies);
+        const message = yield draftMessage_1.default(newDependencies, updatedDependencies, showDevDependencies, showChecklist);
         core.debug(JSON.stringify({ message }, null, 2));
         // publish the new content for the action
         yield ghClient.setMessage(message);
@@ -4633,12 +4646,14 @@ function run() {
             const packageFiles = yield getPackageFiles_1.default();
             // early-termination if there is no file
             if (!packageFiles.length)
-                return manageMessage_1.default();
+                return manageMessage_1.default('false', 'false');
+            const showDevDependencies = core.getInput('show_dev_dependencies');
+            const showChecklist = core.getInput('show_checklist');
             // fetch list of new dependencies for all detected packages
-            const { newDependencies, updatedDependencies } = yield analyseAllPackages_1.default(packageFiles);
+            const { newDependencies, updatedDependencies } = yield analyseAllPackages_1.default(packageFiles, showDevDependencies);
             core.debug(JSON.stringify({ newDependencies, updatedDependencies }, null, 2));
             // manage the publication of a message listing the new dependencies if needed
-            yield manageMessage_1.default(newDependencies, updatedDependencies);
+            yield manageMessage_1.default(showDevDependencies, showChecklist, newDependencies, updatedDependencies);
         }
         catch (error) {
             core.setFailed(error.message);
@@ -7403,6 +7418,20 @@ module.exports = cloneResponse;
 
 /***/ }),
 
+/***/ 331:
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DEPENDENCY_COMMENT_TABLE_HEADER = '| Dependency | Description | Version | License | Source |';
+exports.DEVDEPENDENCY_COMMENT_TABLE_HEADER = '| Dev Dependency | Description | Version | License | Source |';
+exports.COMMENT_TABLE_LINE = '| ----------- | ------------------ | ------------------ | ------------------ | ------------------ |';
+exports.PACKAGE_BASE_URL = 'https://www.npmjs.com/package/';
+
+
+/***/ }),
+
 /***/ 336:
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
@@ -8013,7 +8042,8 @@ const package_json_1 = __importDefault(__webpack_require__(289));
 const comment_1 = __webpack_require__(374);
 const messageInfo_1 = __webpack_require__(451);
 const core = __importStar(__webpack_require__(470));
-function draftMessage(newDependencies, updatedDependencies) {
+const message_1 = __webpack_require__(331);
+function draftMessage(newDependencies, updatedDependencies, showDevDependencies, showChecklist) {
     return __awaiter(this, void 0, void 0, function* () {
         // list all dependencies to render
         const listDependencies = [
@@ -8042,11 +8072,40 @@ function draftMessage(newDependencies, updatedDependencies) {
             .map(dep => messageInfo_1.messageInfo('Updated', info[dep]))
             .join(`\n`)}`;
         core.debug(JSON.stringify({ updatedDependenciesMessage }, null, 2));
+        let devMessage = '';
+        if (showDevDependencies === 'true') {
+            const devDependenciesMessage = `${newDependencies.devDependencies
+                .map(dep => messageInfo_1.messageInfo('Added', info[dep]))
+                .join(`\n`)}`;
+            core.debug(JSON.stringify({ devDependenciesMessage }, null, 2));
+            const updatedDevDependenciesMessage = `${updatedDependencies.devDependencies
+                .map(dep => messageInfo_1.messageInfo('Updated', info[dep]))
+                .join(`\n`)}`;
+            core.debug(JSON.stringify({ updatedDevDependenciesMessage }, null, 2));
+            devMessage = fp_1.compact([
+                ' ',
+                message_1.DEVDEPENDENCY_COMMENT_TABLE_HEADER,
+                message_1.COMMENT_TABLE_LINE,
+                newDependencies.devDependencies.length && devDependenciesMessage,
+                updatedDependencies.devDependencies.length &&
+                    updatedDevDependenciesMessage
+            ]).join(`\n`);
+        }
+        let checklistSection = '';
+        if (showChecklist === 'true') {
+            checklistSection = '\n';
+        }
+        else {
+            checklistSection = '\n';
+        }
         return fp_1.compact([
             comment_1.COMMENT_IDENTIFIER,
-            '\n| Dependency | Description | Version | License | Source |\n| ----------- | ------------------ | ------------------ | ------------------ | ------------------ |',
+            checklistSection,
+            message_1.DEPENDENCY_COMMENT_TABLE_HEADER,
+            message_1.COMMENT_TABLE_LINE,
             newDependencies.dependencies.length && dependenciesMessage,
-            updatedDependencies.dependencies.length && updatedDependenciesMessage
+            updatedDependencies.dependencies.length && updatedDependenciesMessage,
+            devMessage
         ]).join(`\n`);
     });
 }
@@ -8083,32 +8142,40 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const github_sdk_1 = __importDefault(__webpack_require__(908));
 const getLocalPackageInfo_1 = __importDefault(__webpack_require__(226));
 const core = __importStar(__webpack_require__(470));
-function analysePackage(file) {
+function analysePackage(file, showDevDependencies) {
     return __awaiter(this, void 0, void 0, function* () {
         const ghClient = github_sdk_1.default.getClient();
         // fetches information about the package in the base branch
         const baseBranch = yield ghClient.getBaseBranch();
         const basePackage = yield ghClient.getPackage(file, baseBranch);
         const baseDeps = basePackage ? Object.keys(basePackage.dependencies) : [];
-        const baseDevDeps = basePackage
-            ? Object.keys(basePackage.devDependencies)
-            : [];
-        core.debug(JSON.stringify({ baseDeps, baseDevDeps }, null, 2));
+        core.debug(JSON.stringify({ baseDeps }, null, 2));
         // fetches information about the updated package file
         const updatedPackage = yield getLocalPackageInfo_1.default(file);
         const updatedDeps = Object.keys(updatedPackage.dependencies);
-        const updatedDevDeps = Object.keys(updatedPackage.devDependencies);
-        core.debug(JSON.stringify({ updatedDeps, updatedDevDeps }, null, 2));
+        core.debug(JSON.stringify({ updatedDeps }, null, 2));
         // filters new dependencies not existing in the base branch
         const newDeps = updatedDeps.filter(dep => !baseDeps.includes(dep));
-        const newDevDeps = updatedDevDeps.filter(dep => !baseDevDeps.includes(dep));
-        core.debug(JSON.stringify({ newDeps, newDevDeps }, null, 2));
+        core.debug(JSON.stringify({ newDeps }, null, 2));
         // filters upgraded dependencies
         const upgradedDeps = updatedDeps.filter(dep => basePackage.dependencies[dep] &&
             basePackage.dependencies[dep] !== updatedPackage.dependencies[dep]);
-        const upgradedDevDeps = updatedDevDeps.filter(dep => basePackage.devDependencies[dep] &&
-            basePackage.devDependencies[dep] !== updatedPackage.devDependencies[dep]);
-        core.debug(JSON.stringify({ upgradedDeps, upgradedDevDeps }, null, 2));
+        core.debug(JSON.stringify({ upgradedDeps }, null, 2));
+        let newDevDeps = [];
+        let upgradedDevDeps = [];
+        if (showDevDependencies === 'true') {
+            const baseDevDeps = basePackage
+                ? Object.keys(basePackage.devDependencies)
+                : [];
+            core.debug(JSON.stringify({ baseDevDeps }, null, 2));
+            const updatedDevDeps = Object.keys(updatedPackage.devDependencies);
+            core.debug(JSON.stringify({ updatedDevDeps }, null, 2));
+            newDevDeps = updatedDevDeps.filter(dep => !baseDevDeps.includes(dep));
+            core.debug(JSON.stringify({ newDevDeps }, null, 2));
+            upgradedDevDeps = updatedDevDeps.filter(dep => basePackage.devDependencies[dep] &&
+                basePackage.devDependencies[dep] !== updatedPackage.devDependencies[dep]);
+            core.debug(JSON.stringify({ upgradedDevDeps }, null, 2));
+        }
         const newDependencies = {
             dependencies: newDeps,
             devDependencies: newDevDeps
@@ -9101,8 +9168,9 @@ const analysePackage_1 = __importDefault(__webpack_require__(384));
  * for all the packages provided as a parameter
  *
  * @param files List of packages to analyse with the base branch
+ * @param showDevDependencies Flag to enable the analysis of the dev dependencies
  */
-function analyseAllPackages(files) {
+function analyseAllPackages(files, showDevDependencies) {
     return __awaiter(this, void 0, void 0, function* () {
         const newDependencies = {
             dependencies: [],
@@ -9113,23 +9181,25 @@ function analyseAllPackages(files) {
             devDependencies: []
         };
         for (const file of files) {
-            const result = yield analysePackage_1.default(file);
+            const result = yield analysePackage_1.default(file, showDevDependencies);
             newDependencies.dependencies = [
                 ...newDependencies.dependencies,
                 ...result.newDependencies.dependencies
-            ];
-            newDependencies.devDependencies = [
-                ...newDependencies.devDependencies,
-                ...result.newDependencies.devDependencies
             ];
             updatedDependencies.dependencies = [
                 ...updatedDependencies.dependencies,
                 ...result.updatedDependencies.dependencies
             ];
-            updatedDependencies.devDependencies = [
-                ...updatedDependencies.devDependencies,
-                ...result.updatedDependencies.devDependencies
-            ];
+            if (showDevDependencies === 'true') {
+                newDependencies.devDependencies = [
+                    ...newDependencies.devDependencies,
+                    ...result.newDependencies.devDependencies
+                ];
+                updatedDependencies.devDependencies = [
+                    ...updatedDependencies.devDependencies,
+                    ...result.updatedDependencies.devDependencies
+                ];
+            }
         }
         return {
             newDependencies,
@@ -9143,13 +9213,14 @@ exports.default = analyseAllPackages;
 /***/ }),
 
 /***/ 451:
-/***/ (function(__unusedmodule, exports) {
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const message_1 = __webpack_require__(331);
 exports.messageInfo = (type, dep) => {
-    return `| [${dep.name}](https://www.npmjs.com/package/${dep.name}) (${type}) | ${dep.description} | ${dep.version} | ${dep.license} | ${dep.homepage ? `[${dep.name}](${dep.homepage})` : dep.name} |`;
+    return `| [${dep.name}](${message_1.PACKAGE_BASE_URL}${dep.name}) (${type}) | ${dep.description} | ${dep.version} | ${dep.license} | ${dep.homepage ? `[${dep.name}](${dep.homepage})` : dep.name} |`;
 };
 
 

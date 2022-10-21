@@ -5,10 +5,17 @@ import {COMMENT_IDENTIFIER} from '../../config/comment'
 import {DependenciesList} from '../../types/package'
 import {messageInfo} from './messageInfo'
 import * as core from '@actions/core'
+import {
+  COMMENT_TABLE_LINE,
+  DEPENDENCY_COMMENT_TABLE_HEADER,
+  DEVDEPENDENCY_COMMENT_TABLE_HEADER
+} from '../../config/message'
 
 async function draftMessage(
   newDependencies: DependenciesList,
-  updatedDependencies: DependenciesList
+  updatedDependencies: DependenciesList,
+  showDevDependencies: string,
+  showChecklist: string
 ): Promise<string> {
   // list all dependencies to render
   const listDependencies = [
@@ -42,11 +49,43 @@ async function draftMessage(
     .join(`\n`)}`
   core.debug(JSON.stringify({updatedDependenciesMessage}, null, 2))
 
+  let devMessage = ''
+  if (showDevDependencies === 'true') {
+    const devDependenciesMessage = `${newDependencies.devDependencies
+      .map(dep => messageInfo('Added', info[dep]))
+      .join(`\n`)}`
+    core.debug(JSON.stringify({devDependenciesMessage}, null, 2))
+
+    const updatedDevDependenciesMessage = `${updatedDependencies.devDependencies
+      .map(dep => messageInfo('Updated', info[dep]))
+      .join(`\n`)}`
+    core.debug(JSON.stringify({updatedDevDependenciesMessage}, null, 2))
+
+    devMessage = compact([
+      ' ',
+      DEVDEPENDENCY_COMMENT_TABLE_HEADER,
+      COMMENT_TABLE_LINE,
+      newDependencies.devDependencies.length && devDependenciesMessage,
+      updatedDependencies.devDependencies.length &&
+        updatedDevDependenciesMessage
+    ]).join(`\n`)
+  }
+
+  let checklistSection = ''
+  if (showChecklist === 'true') {
+    checklistSection = '\n'
+  } else {
+    checklistSection = '\n'
+  }
+
   return compact([
     COMMENT_IDENTIFIER,
-    '\n| Dependency | Description | Version | License | Source |\n| ----------- | ------------------ | ------------------ | ------------------ | ------------------ |',
+    checklistSection,
+    DEPENDENCY_COMMENT_TABLE_HEADER,
+    COMMENT_TABLE_LINE,
     newDependencies.dependencies.length && dependenciesMessage,
-    updatedDependencies.dependencies.length && updatedDependenciesMessage
+    updatedDependencies.dependencies.length && updatedDependenciesMessage,
+    devMessage
   ]).join(`\n`)
 }
 
