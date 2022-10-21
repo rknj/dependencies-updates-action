@@ -6,9 +6,11 @@ import analysePackage from './analysePackage'
  * for all the packages provided as a parameter
  *
  * @param files List of packages to analyse with the base branch
+ * @param showDevDependencies Flag to enable the analysis of the dev dependencies
  */
 async function analyseAllPackages(
-  files: string[]
+  files: string[],
+  showDevDependencies: string
 ): Promise<{
   newDependencies: DependenciesList
   updatedDependencies: DependenciesList
@@ -23,16 +25,11 @@ async function analyseAllPackages(
   }
 
   for (const file of files) {
-    const result = await analysePackage(file)
+    const result = await analysePackage(file, showDevDependencies)
 
     newDependencies.dependencies = [
       ...newDependencies.dependencies,
       ...result.newDependencies.dependencies
-    ]
-
-    newDependencies.devDependencies = [
-      ...newDependencies.devDependencies,
-      ...result.newDependencies.devDependencies
     ]
 
     updatedDependencies.dependencies = [
@@ -40,10 +37,17 @@ async function analyseAllPackages(
       ...result.updatedDependencies.dependencies
     ]
 
-    updatedDependencies.devDependencies = [
-      ...updatedDependencies.devDependencies,
-      ...result.updatedDependencies.devDependencies
-    ]
+    if (showDevDependencies === 'true') {
+      newDependencies.devDependencies = [
+        ...newDependencies.devDependencies,
+        ...result.newDependencies.devDependencies
+      ]
+
+      updatedDependencies.devDependencies = [
+        ...updatedDependencies.devDependencies,
+        ...result.updatedDependencies.devDependencies
+      ]
+    }
   }
 
   return {

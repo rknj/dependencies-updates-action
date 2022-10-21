@@ -5,7 +5,13 @@ branding:
   color: gray-dark
 inputs:
   token:
-    description: Auth Token for the GitHub API
+    description: 'Auth Token for the GitHub API'
+  show_dev_dependencies:
+    description: 'Display the changes for devDependencies'
+    default: "true"
+  show_checklist:
+    description: 'Show the dependency checklist'
+    default: "true"
 runs:
   using: node12
   main: dist/index.js

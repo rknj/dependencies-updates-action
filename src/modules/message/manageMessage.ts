@@ -4,21 +4,32 @@ import draftMessage from './draftMessage'
 import * as core from '@actions/core'
 
 async function manageMessage(
+  showDevDependencies: string,
+  showChecklist: string,
   newDependencies?: DependenciesList,
   updatedDependencies?: DependenciesList
 ): Promise<void> {
   const ghClient = GitHubClient.getClient()
   const actionMessageId = await ghClient.fetchMessage()
-  const hasNewDependencies =
-    newDependencies?.dependencies.length ||
-    newDependencies?.devDependencies.length
-  const hasUpdatedDependencies =
-    updatedDependencies?.dependencies.length ||
-    updatedDependencies?.devDependencies.length
+  let hasNewDependencies = newDependencies?.dependencies.length
+  if (showDevDependencies === 'true') {
+    hasNewDependencies =
+      hasNewDependencies || newDependencies?.devDependencies.length
+  }
+  let hasUpdatedDependencies = updatedDependencies?.dependencies.length
+  if (showDevDependencies === 'true') {
+    hasUpdatedDependencies =
+      hasNewDependencies || updatedDependencies?.devDependencies.length
+  }
 
   core.debug(
     JSON.stringify(
-      {actionMessageId, hasNewDependencies, hasUpdatedDependencies},
+      {
+        actionMessageId,
+        hasNewDependencies,
+        hasUpdatedDependencies,
+        showDevDependencies
+      },
       null,
       2
     )
@@ -38,7 +49,12 @@ async function manageMessage(
   }
 
   // generate the new content for the message
-  const message = await draftMessage(newDependencies, updatedDependencies)
+  const message = await draftMessage(
+    newDependencies,
+    updatedDependencies,
+    showDevDependencies,
+    showChecklist
+  )
 
   core.debug(JSON.stringify({message}, null, 2))
 
