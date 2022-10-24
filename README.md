@@ -10,29 +10,17 @@ This action is not only looking at the root-level `package.json` but potentially
 any existing `package.json` in the project to be compatible with monorepo
 projects.
 
-## New dependencies
-
-Adding new dependencies in a project should never be a small change, and often
-it should trigger discussions between maintainers. This action can help you
-making sure that you are not missing the addition of new package in your NPM
-`dependencies` and `devDependencies`.
-
-To highlight new packages, this action compares the list of dependencies 
+To highlight new/updated.removed packages, this action compares the list of dependencies
 registered in the current branch with the ones registered in the base branch.
 This check only occurs for each `package.json` file added or updated with the
 current pull request.
 
-## Updated dependencies
+## Dependencies updates
 
-Updating dependencies should also trigger discussions as adding new ones does. 
-Especially when the upgrade relates to a Minor or a Major version.
-This action will give you an overview of the updated dependencies in your NPM 
+Adding new, upgrading or removing dependencies in a project should never be a small change, 
+and often it should trigger discussions between maintainers. This action can help you
+making sure that you are not missing addition of new package, upgrades or removal in your NPM
 `dependencies` and `devDependencies`.
-
-To highlight updated packages, this action compares the list of dependencies
-registered in the current branch with the ones registered in the base branch.
-This check only occurs for each `package.json` file added or updated with the
-current pull request.
 
 ## Usage
 

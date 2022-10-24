@@ -7,7 +7,8 @@ async function manageMessage(
   showDevDependencies: string,
   showChecklist: string,
   newDependencies?: DependenciesList,
-  updatedDependencies?: DependenciesList
+  updatedDependencies?: DependenciesList,
+  removedDependencies?: DependenciesList
 ): Promise<void> {
   const ghClient = GitHubClient.getClient()
   const actionMessageId = await ghClient.fetchMessage()
@@ -19,7 +20,12 @@ async function manageMessage(
   let hasUpdatedDependencies = updatedDependencies?.dependencies.length
   if (showDevDependencies === 'true') {
     hasUpdatedDependencies =
-      hasNewDependencies || updatedDependencies?.devDependencies.length
+      hasUpdatedDependencies || updatedDependencies?.devDependencies.length
+  }
+  let hasRemovedDependencies = removedDependencies?.dependencies.length
+  if (showDevDependencies === 'true') {
+    hasRemovedDependencies =
+      hasRemovedDependencies || removedDependencies?.devDependencies.length
   }
 
   core.debug(
@@ -28,6 +34,7 @@ async function manageMessage(
         actionMessageId,
         hasNewDependencies,
         hasUpdatedDependencies,
+        hasRemovedDependencies,
         showDevDependencies
       },
       null,
@@ -36,13 +43,24 @@ async function manageMessage(
   )
 
   // early-termination if there is no new dependencies and no existing message
-  if (!actionMessageId && !hasNewDependencies && !hasUpdatedDependencies) return
+  if (
+    !actionMessageId &&
+    !hasNewDependencies &&
+    !hasUpdatedDependencies &&
+    !hasRemovedDependencies
+  )
+    return
 
   // termination with message deletion if existing message & no new dependencies
-  if (actionMessageId && !hasNewDependencies && !hasUpdatedDependencies)
+  if (
+    actionMessageId &&
+    !hasNewDependencies &&
+    !hasUpdatedDependencies &&
+    !hasRemovedDependencies
+  )
     return ghClient.deleteMessage()
 
-  if (!newDependencies || !updatedDependencies) {
+  if (!newDependencies || !updatedDependencies || !removedDependencies) {
     throw new Error(
       'No new or updated dependencies should have been solved by the previous conditions'
     )
@@ -52,6 +70,7 @@ async function manageMessage(
   const message = await draftMessage(
     newDependencies,
     updatedDependencies,
+    removedDependencies,
     showDevDependencies,
     showChecklist
   )

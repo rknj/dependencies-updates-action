@@ -15,18 +15,26 @@ async function run(): Promise<void> {
     const showChecklist = core.getInput('show_checklist')
 
     // fetch list of new dependencies for all detected packages
-    const {newDependencies, updatedDependencies} = await analyseAllPackages(
-      packageFiles,
-      showDevDependencies
+    const {
+      newDependencies,
+      updatedDependencies,
+      removedDependencies
+    } = await analyseAllPackages(packageFiles, showDevDependencies)
+    core.debug(
+      JSON.stringify(
+        {newDependencies, updatedDependencies, removedDependencies},
+        null,
+        2
+      )
     )
-    core.debug(JSON.stringify({newDependencies, updatedDependencies}, null, 2))
 
     // manage the publication of a message listing the new dependencies if needed
     await manageMessage(
       showDevDependencies,
       showChecklist,
       newDependencies,
-      updatedDependencies
+      updatedDependencies,
+      removedDependencies
     )
   } catch (error) {
     core.setFailed(error.message)
