@@ -1,7 +1,7 @@
-name: Highlight new and updated NPM Dependencies
-description: Add a message in Pull Request with basic information when dependencie are updated or when new dependencies are added
+name: Highlight changes in NPM Dependencies
+description: Add a message in Pull Request with basic information when dependencies are added, updated or removed
 branding:
-  icon: plus-square
+  icon: swap
   color: gray-dark
 inputs:
   token:
