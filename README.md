@@ -1,16 +1,16 @@
-# Highlight new and updated NPM dependencies in Pull Requests
+# Highlight changes in NPM dependencies on Pull Requests
 
 (this is an extension of https://github.com/hiwelo/new-dependencies-action)
 
-In Pull Requests, this action highlight the addition of new NPM dependencies or 
-the update of existing ones in one of the `package.json` of your repository.
+In Pull Requests, this action highlight the addition of new NPM dependencies, 
+the update or the removal of existing ones in one of the `package.json` of your repository.
 It also provides the link to the package page on npmJS and to the source code page
 
 This action is not only looking at the root-level `package.json` but potentially
 any existing `package.json` in the project to be compatible with monorepo
 projects.
 
-To highlight new/updated.removed packages, this action compares the list of dependencies
+To highlight new/updated/removed packages, this action compares the list of dependencies
 registered in the current branch with the ones registered in the base branch.
 This check only occurs for each `package.json` file added or updated with the
 current pull request.
@@ -64,6 +64,11 @@ $ npm run build && npm run pack
 | ----------- | ------------------ | ------------------ | ------------------ | ------------------ |
 | [i18next](https://www.npmjs.com/package/i18next) (Added) | i18next internationalization framework | 21.10.0 | MIT | [i18next](https://www.i18next.com) |
 | [copy-to-clipboard](https://www.npmjs.com/package/copy-to-clipboard) (Updated) | Copy stuff into clipboard using JS with fallbacks | 3.3.2 | MIT | [copy-to-clipboard](https://github.com/sudodoki/copy-to-clipboard#readme) |
+| [react-dom](https://www.npmjs.com/package/react-dom) (Removed) | React package for working with the DOM. | 18.2.0 | MIT | [react-dom](https://reactjs.org/) |
+
+| Dev Dependency | Description | Version | License | Source |
+| ----------- | ------------------ | ------------------ | ------------------ | ------------------ |
+| [jest-junit](https://www.npmjs.com/package/jest-junit) (Removed) | A jest reporter that generates junit xml files | 14.0.1 | Apache-2.0 | [jest-junit](https://github.com/jest-community/jest-junit#readme) |
 
 ## License
 
